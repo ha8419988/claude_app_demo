@@ -101,8 +101,10 @@ jobs:
 
       - name: Upload to DeployGate
         run: |
-          curl -X POST \
+          RESPONSE=$(curl -s -X POST \
             -H "Authorization: token ${{ secrets.DEPLOYGATE_API_KEY }}" \
             -F "file=@artifacts/app-debug.apk" \
             -F "message=Build #${{ github.run_number }} — ${{ github.sha }}" \
-            https://deploygate.com/api/users/${{ secrets.DEPLOYGATE_APP_OWNER }}/apps
+            https://deploygate.com/api/users/${{ secrets.DEPLOYGATE_APP_OWNER }}/apps)
+          echo "$RESPONSE"
+          echo "$RESPONSE" | grep -q '"error":false' && echo "✅ Upload DeployGate thành công!" || (echo "❌ Upload thất bại!" && exit 1)
