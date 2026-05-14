@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem \"C:/Users/anhnh02/AppData/Roaming/\")",
+      "Bash(Select-Object Name)",
+      "Bash(claude mcp *)",
+      "PowerShell(npm *)",
+      "PowerShell(winget *)",
+      "PowerShell($env:Path = [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"Machine\"\\) + \";\" + [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"User\"\\); node --version; npx --version)",
+      "PowerShell(Set-ExecutionPolicy *)",
+      "Bash(fcp --version)",
+      "Bash(where fcp *)",
+      "PowerShell(dart pub global list 2>&1)",
+      "PowerShell(flutter --version 2>&1)",
+      "PowerShell(flutter pub global list 2>&1)",
+      "Bash(cat ~/.claude/claude_desktop_config.json 2>/dev/null || echo \"NOT FOUND\")",
+      "Read(//c/Users/anhnh02/.claude/**)",
+      "PowerShell(Get-Content \"$env:APPDATA\\\\Claude\\\\claude_desktop_config.json\" -ErrorAction SilentlyContinue; if \\(-not $?\\) { \"NOT FOUND in APPDATA\" })",
+      "PowerShell(Get-Content \"$env:USERPROFILE\\\\.claude\\\\settings.json\" -ErrorAction SilentlyContinue; if \\(-not $?\\) { \"NOT FOUND\" })",
+      "PowerShell(Get-Command figma-mcp-go -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-ChildItem \"$env:USERPROFILE\\\\.claude\\\\\" -ErrorAction SilentlyContinue)",
+      "PowerShell(go version 2>&1)",
+      "WebFetch(domain:github.com)"
+    ]
+  }
+}
