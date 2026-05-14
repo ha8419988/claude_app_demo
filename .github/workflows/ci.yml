@@ -84,3 +84,25 @@ jobs:
 
       - name: Build iOS (no codesign)
         run: flutter build ios --no-codesign --debug
+
+  # ─── 4. Upload to DeployGate ─────────────────────────────────────────────────
+  deploy-deploygate:
+    name: Upload to DeployGate
+    runs-on: ubuntu-latest
+    needs: build-android
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+
+    steps:
+      - name: Download APK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: debug-apk
+          path: artifacts/
+
+      - name: Upload to DeployGate
+        run: |
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.DEPLOYGATE_API_KEY }}" \
+            -F "file=@artifacts/app-debug.apk" \
+            -F "message=Build #${{ github.run_number }} — ${{ github.sha }}" \
+            https://deploygate.com/api/users/${{ secrets.DEPLOYGATE_APP_OWNER }}/apps
