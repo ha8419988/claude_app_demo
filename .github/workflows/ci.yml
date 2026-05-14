@@ -101,10 +101,16 @@ jobs:
 
       - name: Upload to DeployGate
         run: |
-          RESPONSE=$(curl -s -X POST \
+          echo "=== DeployGate Upload ==="
+          echo "Owner: ${{ secrets.DEPLOYGATE_APP_OWNER }}"
+          echo "APK exists: $(ls -lh artifacts/app-debug.apk 2>/dev/null || echo 'NOT FOUND')"
+          HTTP_STATUS=$(curl -s -o /tmp/dg_response.json -w "%{http_code}" -X POST \
             -H "Authorization: token ${{ secrets.DEPLOYGATE_API_KEY }}" \
             -F "file=@artifacts/app-debug.apk" \
             -F "message=Build #${{ github.run_number }} — ${{ github.sha }}" \
             https://deploygate.com/api/users/${{ secrets.DEPLOYGATE_APP_OWNER }}/apps)
-          echo "$RESPONSE"
+          echo "HTTP Status: $HTTP_STATUS"
+          echo "Response body:"
+          cat /tmp/dg_response.json
+          RESPONSE=$(cat /tmp/dg_response.json)
           echo "$RESPONSE" | grep -q '"error":false' && echo "✅ Upload DeployGate thành công!" || (echo "❌ Upload thất bại!" && exit 1)
