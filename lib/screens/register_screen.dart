@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../cubit/auth_cubit.dart';
+import '../cubit/auth_state.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -33,7 +36,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _submit() {
-    final formValid = _formKey.currentState!.validate();
     if (!_agreed) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -44,16 +46,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
       return;
     }
-    if (formValid) {
-      Navigator.pop(context);
-    }
+    if (!_formKey.currentState!.validate()) return;
+    context.read<AuthCubit>().register(
+          _nameController.text.trim(),
+          _emailController.text.trim(),
+          _passwordController.text,
+        );
   }
 
-  InputDecoration _inputDecoration({
-    String? hint,
-    required IconData icon,
-    Widget? suffix,
-  }) {
+  InputDecoration _inputDecoration({String? hint, required IconData icon, Widget? suffix}) {
     return InputDecoration(
       hintText: hint,
       hintStyle: const TextStyle(color: _textGrey),
@@ -86,152 +87,196 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 16),
-                const Text(
-                  'Vietnam Explore',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: _textDark,
-                  ),
+    return BlocConsumer<AuthCubit, AuthState>(
+      listener: (context, state) {
+        if (state is AuthAuthenticated) {
+          Navigator.pushNamedAndRemoveUntil(context, '/home', (_) => false);
+        } else if (state is AuthError) {
+          showDialog<void>(
+            context: context,
+            builder: (_) => AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              title: const Row(
+                children: [
+                  Icon(Icons.error_outline, color: Color(0xFFE53935), size: 22),
+                  SizedBox(width: 8),
+                  Text('Đăng ký thất bại',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                ],
+              ),
+              content: Text(state.message, style: const TextStyle(fontSize: 14)),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Đóng',
+                      style: TextStyle(color: Color(0xFF2D5A27), fontWeight: FontWeight.w600)),
                 ),
-                const SizedBox(height: 32),
-                const Text(
-                  'Tạo tài khoản mới',
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    color: _textDark,
-                    height: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Chào mừng bạn gia nhập cộng đồng yêu du lịch Việt Nam.',
-                  style: TextStyle(fontSize: 14, color: _textGrey),
-                ),
-                const SizedBox(height: 28),
-                _buildLabel('Họ tên'),
-                const SizedBox(height: 6),
-                TextFormField(
-                  controller: _nameController,
-                  style: const TextStyle(fontSize: 15, color: _textDark),
-                  decoration: _inputDecoration(
-                    hint: 'Nguyễn Văn A',
-                    icon: Icons.person_outline,
-                  ),
-                  validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Vui lòng nhập họ tên';
-                    if (v.trim().length < 2) return 'Họ tên phải có ít nhất 2 ký tự';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                _buildLabel('Email'),
-                const SizedBox(height: 6),
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  style: const TextStyle(fontSize: 15, color: _textDark),
-                  decoration: _inputDecoration(
-                    hint: 'example@email.com',
-                    icon: Icons.mail_outline,
-                  ),
-                  validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Vui lòng nhập email';
-                    final emailRegex = RegExp(r'^[\w.+-]+@[\w-]+\.[a-z]{2,}$', caseSensitive: false);
-                    if (!emailRegex.hasMatch(v.trim())) return 'Email không hợp lệ';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                _buildLabel('Mật khẩu'),
-                const SizedBox(height: 6),
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: !_passwordVisible,
-                  style: const TextStyle(fontSize: 15, color: _textDark),
-                  decoration: _inputDecoration(
-                    icon: Icons.lock_outline,
-                    suffix: GestureDetector(
-                      onTap: () => setState(() => _passwordVisible = !_passwordVisible),
-                      child: Icon(
-                        _passwordVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                        color: _textGrey,
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                  validator: (v) {
-                    if (v == null || v.isEmpty) return 'Vui lòng nhập mật khẩu';
-                    if (v.length < 6) return 'Mật khẩu phải có ít nhất 6 ký tự';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                _buildLabel('Xác nhận mật khẩu'),
-                const SizedBox(height: 6),
-                TextFormField(
-                  controller: _confirmController,
-                  obscureText: !_confirmVisible,
-                  style: const TextStyle(fontSize: 15, color: _textDark),
-                  decoration: _inputDecoration(
-                    icon: Icons.lock_reset_outlined,
-                    suffix: GestureDetector(
-                      onTap: () => setState(() => _confirmVisible = !_confirmVisible),
-                      child: Icon(
-                        _confirmVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                        color: _textGrey,
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                  validator: (v) {
-                    if (v == null || v.isEmpty) return 'Vui lòng xác nhận mật khẩu';
-                    if (v != _passwordController.text) return 'Mật khẩu không khớp';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                _buildAgreementRow(),
-                const SizedBox(height: 24),
-                _buildRegisterButton(),
-                const SizedBox(height: 24),
-                _buildDivider(),
-                const SizedBox(height: 20),
-                _buildSocialButtons(),
-                const SizedBox(height: 28),
-                _buildLoginRow(),
-                const SizedBox(height: 20),
-                const Center(
-                  child: Text(
-                    '© 2024 Vietnam Explore Travel. All rights reserved.',
-                    style: TextStyle(fontSize: 11, color: _textGrey),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(height: 24),
               ],
             ),
+          );
+        }
+      },
+      builder: (context, state) {
+        final isLoading = state is AuthLoading;
+        return Stack(
+          children: [
+            Scaffold(
+          backgroundColor: Colors.white,
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Vietnam Explore',
+                      style: TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.w600, color: _textDark),
+                    ),
+                    const SizedBox(height: 32),
+                    const Text(
+                      'Tạo tài khoản mới',
+                      style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                          color: _textDark,
+                          height: 1.2),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Chào mừng bạn gia nhập cộng đồng yêu du lịch Việt Nam.',
+                      style: TextStyle(fontSize: 14, color: _textGrey),
+                    ),
+                    const SizedBox(height: 28),
+                    _buildLabel('Họ tên'),
+                    const SizedBox(height: 6),
+                    TextFormField(
+                      controller: _nameController,
+                      style: const TextStyle(fontSize: 15, color: _textDark),
+                      decoration: _inputDecoration(
+                          hint: 'Nguyễn Văn A', icon: Icons.person_outline),
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return 'Vui lòng nhập họ tên';
+                        if (v.trim().length < 2) return 'Họ tên phải có ít nhất 2 ký tự';
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    _buildLabel('Email'),
+                    const SizedBox(height: 6),
+                    TextFormField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      style: const TextStyle(fontSize: 15, color: _textDark),
+                      decoration: _inputDecoration(
+                          hint: 'example@email.com', icon: Icons.mail_outline),
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return 'Vui lòng nhập email';
+                        final emailRegex = RegExp(r'^[\w.+-]+@[\w-]+\.[a-z]{2,}$',
+                            caseSensitive: false);
+                        if (!emailRegex.hasMatch(v.trim())) return 'Email không hợp lệ';
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    _buildLabel('Mật khẩu'),
+                    const SizedBox(height: 6),
+                    TextFormField(
+                      controller: _passwordController,
+                      obscureText: !_passwordVisible,
+                      style: const TextStyle(fontSize: 15, color: _textDark),
+                      decoration: _inputDecoration(
+                        icon: Icons.lock_outline,
+                        suffix: GestureDetector(
+                          onTap: () =>
+                              setState(() => _passwordVisible = !_passwordVisible),
+                          child: Icon(
+                            _passwordVisible
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                            color: _textGrey,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                      validator: (v) {
+                        if (v == null || v.isEmpty) return 'Vui lòng nhập mật khẩu';
+                        if (v.length < 6) return 'Mật khẩu phải có ít nhất 6 ký tự';
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    _buildLabel('Xác nhận mật khẩu'),
+                    const SizedBox(height: 6),
+                    TextFormField(
+                      controller: _confirmController,
+                      obscureText: !_confirmVisible,
+                      style: const TextStyle(fontSize: 15, color: _textDark),
+                      decoration: _inputDecoration(
+                        icon: Icons.lock_reset_outlined,
+                        suffix: GestureDetector(
+                          onTap: () =>
+                              setState(() => _confirmVisible = !_confirmVisible),
+                          child: Icon(
+                            _confirmVisible
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                            color: _textGrey,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                      validator: (v) {
+                        if (v == null || v.isEmpty) return 'Vui lòng xác nhận mật khẩu';
+                        if (v != _passwordController.text) return 'Mật khẩu không khớp';
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    _buildAgreementRow(),
+                    const SizedBox(height: 24),
+                    _buildRegisterButton(isLoading),
+                    const SizedBox(height: 24),
+                    _buildDivider(),
+                    const SizedBox(height: 20),
+                    _buildSocialButtons(),
+                    const SizedBox(height: 28),
+                    _buildLoginRow(),
+                    const SizedBox(height: 20),
+                    const Center(
+                      child: Text(
+                        '© 2024 Vietnam Explore Travel. All rights reserved.',
+                        style: TextStyle(fontSize: 11, color: _textGrey),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
+            ),
+            if (isLoading)
+              const Opacity(
+                opacity: 0.4,
+                child: ModalBarrier(dismissible: false, color: Colors.black),
+              ),
+            if (isLoading)
+              const Center(
+                child: CircularProgressIndicator(color: Color(0xFF2D5A27)),
+              ),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildLabel(String text) {
-    return Text(text, style: const TextStyle(fontSize: 13, color: _textGrey));
-  }
+  Widget _buildLabel(String text) =>
+      Text(text, style: const TextStyle(fontSize: 13, color: _textGrey));
 
   Widget _buildAgreementRow() {
     return Row(
@@ -256,14 +301,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
               style: TextStyle(fontSize: 13, color: _textGrey),
               children: [
                 TextSpan(
-                  text: 'Điều khoản sử dụng',
-                  style: TextStyle(color: _green, fontWeight: FontWeight.w600),
-                ),
+                    text: 'Điều khoản sử dụng',
+                    style: TextStyle(color: _green, fontWeight: FontWeight.w600)),
                 TextSpan(text: ' và '),
                 TextSpan(
-                  text: 'Chính sách bảo mật',
-                  style: TextStyle(color: _green, fontWeight: FontWeight.w600),
-                ),
+                    text: 'Chính sách bảo mật',
+                    style: TextStyle(color: _green, fontWeight: FontWeight.w600)),
                 TextSpan(text: '.'),
               ],
             ),
@@ -273,22 +316,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Widget _buildRegisterButton() {
+  Widget _buildRegisterButton(bool isLoading) {
     return SizedBox(
       width: double.infinity,
       height: 52,
       child: ElevatedButton(
-        onPressed: _submit,
+        onPressed: isLoading ? null : _submit,
         style: ElevatedButton.styleFrom(
           backgroundColor: _green,
           foregroundColor: Colors.white,
+          disabledBackgroundColor: _green.withValues(alpha: 0.6),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           elevation: 0,
         ),
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Đăng ký', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            Text('Đăng ký',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
             SizedBox(width: 8),
             Icon(Icons.arrow_forward, size: 18),
           ],
@@ -303,7 +348,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         Expanded(child: Divider(color: _borderGrey, thickness: 1)),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 12),
-          child: Text('Hoặc đăng ký bằng', style: TextStyle(fontSize: 12, color: _textGrey)),
+          child: Text('Hoặc đăng ký bằng',
+              style: TextStyle(fontSize: 12, color: _textGrey)),
         ),
         Expanded(child: Divider(color: _borderGrey, thickness: 1)),
       ],
@@ -337,7 +383,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             size: 22,
           ),
           const SizedBox(width: 8),
-          Text(label, style: const TextStyle(fontSize: 14, color: _textDark, fontWeight: FontWeight.w500)),
+          Text(label,
+              style: const TextStyle(
+                  fontSize: 14, color: _textDark, fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -347,10 +395,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text(
-          'Đã có tài khoản? ',
-          style: TextStyle(fontSize: 14, color: _textGrey),
-        ),
+        const Text('Đã có tài khoản? ',
+            style: TextStyle(fontSize: 14, color: _textGrey)),
         ElevatedButton(
           onPressed: () => Navigator.pop(context),
           style: ElevatedButton.styleFrom(
@@ -362,10 +408,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             elevation: 0,
           ),
-          child: const Text(
-            'Đăng nhập',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-          ),
+          child: const Text('Đăng nhập',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
         ),
       ],
     );

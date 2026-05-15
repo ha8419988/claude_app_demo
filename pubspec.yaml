@@ -36,6 +36,10 @@ dependencies:
   cupertino_icons: ^1.0.8
   google_fonts: ^6.2.1
   cached_network_image: ^3.4.1
+  flutter_bloc: ^9.1.1
+  dio: ^5.7.0
+  retrofit: ^4.4.1
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:
@@ -43,13 +47,17 @@ dev_dependencies:
 
   flutter_lints: ^5.0.0
   flutter_launcher_icons: ^0.14.3
+  bloc_test: ^10.0.0
+  mocktail: ^1.0.4
+  retrofit_generator: ^8.2.1
+  build_runner: ^2.4.13
 
 flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/icon/app_icon.png"
   min_sdk_android: 21
-  adaptive_icon_background: "#292F52"
+  adaptive_icon_background: "#154212"
   adaptive_icon_foreground: "assets/icon/app_icon.png"
 
 # For information on the generic Dart part of this file, see the

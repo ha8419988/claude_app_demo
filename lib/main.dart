@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'core/network/dio_client.dart';
+import 'cubit/auth_cubit.dart';
+import 'data/remote/auth_api.dart';
+import 'services/auth_service.dart';
 import 'screens/explore_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/profile_screen.dart';
@@ -8,7 +13,12 @@ import 'screens/register_screen.dart';
 import 'widgets/app_bottom_nav_bar.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    BlocProvider(
+      create: (_) => AuthCubit(AuthService(AuthApi(DioClient.create()))),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -17,7 +27,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Preme Date Local',
+      title: 'Vietnam Explore',
       debugShowCheckedModeBanner: false,
       initialRoute: '/login',
       routes: {

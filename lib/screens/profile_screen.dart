@@ -1,5 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../cubit/auth_cubit.dart';
+import '../cubit/auth_state.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -69,18 +72,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Minh Anh Nguyễn',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: _textDark,
-            ),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'minhanh.traveler@email.com',
-            style: TextStyle(fontSize: 13, color: _textGrey),
+          Builder(
+            builder: (context) {
+              final state = context.watch<AuthCubit>().state;
+              final name = state is AuthAuthenticated ? state.user.name : '';
+              final email = state is AuthAuthenticated ? state.user.email : '';
+              return Column(
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: _textDark,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    email,
+                    style: const TextStyle(fontSize: 13, color: _textGrey),
+                  ),
+                ],
+              );
+            },
           ),
           const SizedBox(height: 10),
           Row(
@@ -245,8 +259,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         width: double.infinity,
         height: 48,
         child: OutlinedButton.icon(
-          onPressed: () => Navigator.pushNamedAndRemoveUntil(
-            context, '/login', (_) => false),
+          onPressed: () async {
+                await context.read<AuthCubit>().logout();
+                if (mounted) {
+                  Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+                }
+              },
           icon: const Icon(Icons.logout, color: _red, size: 18),
           label: const Text(
             'Đăng xuất',

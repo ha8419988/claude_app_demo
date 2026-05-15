@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../theme/app_colors.dart';
 
 class AppBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -12,83 +10,57 @@ class AppBottomNavBar extends StatelessWidget {
     required this.onTap,
   });
 
+  static const _green = Color(0xFF2D5A27);
+  static const _grey = Color(0xFF9E9E9E);
+
+  static const _items = [
+    {'icon': Icons.home_outlined, 'activeIcon': Icons.home, 'label': 'Trang chủ'},
+    {'icon': Icons.explore_outlined, 'activeIcon': Icons.explore, 'label': 'Khám phá'},
+    {'icon': Icons.bookmark_outline, 'activeIcon': Icons.bookmark, 'label': 'Đã lưu'},
+    {'icon': Icons.person_outline, 'activeIcon': Icons.person, 'label': 'Cá nhân'},
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: AppColors.greyBorder)),
+        border: Border(top: BorderSide(color: Color(0xFFE6E6E6))),
       ),
-      padding: const EdgeInsets.fromLTRB(15, 16, 15, 16),
+      padding: const EdgeInsets.fromLTRB(8, 10, 8, 16),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          GestureDetector(onTap: () => onTap(0), child: _NavItem(icon: Icons.event, label: '予約', isActive: currentIndex == 0)),
-          GestureDetector(onTap: () => onTap(1), child: _NavItem(icon: Icons.favorite_border, label: 'デート', hasBadge: true, isActive: currentIndex == 1)),
-          GestureDetector(onTap: () => onTap(2), child: _NavItem(icon: Icons.article, label: 'レポート', isActive: currentIndex == 2)),
-          GestureDetector(onTap: () => onTap(3), child: _NavItem(icon: Icons.notifications_none, label: 'お知らせ', hasBadge: true, isActive: currentIndex == 3)),
-          GestureDetector(onTap: () => onTap(4), child: _NavItem(icon: Icons.person, label: 'マイページ', isActive: currentIndex == 4)),
-        ],
-      ),
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool isActive;
-  final bool hasBadge;
-
-  const _NavItem({
-    required this.icon,
-    required this.label,
-    this.isActive = false,
-    this.hasBadge = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final color = isActive ? AppColors.gold : AppColors.text;
-    return SizedBox(
-      width: 55,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Icon(icon, color: color, size: 28),
-              if (hasBadge)
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: Container(
-                    width: 8.17,
-                    height: 8.17,
-                    decoration: BoxDecoration(
-                      color: AppColors.red,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 1.5),
-                    ),
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: List.generate(_items.length, (i) {
+          final active = currentIndex == i;
+          final item = _items[i];
+          return GestureDetector(
+            onTap: () => onTap(i),
+            behavior: HitTestBehavior.opaque,
+            child: SizedBox(
+              width: 72,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    active ? item['activeIcon'] as IconData : item['icon'] as IconData,
+                    color: active ? _green : _grey,
+                    size: 26,
                   ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: GoogleFonts.notoSansJp(
-              color: color,
-              fontSize: 11,
-              fontWeight: FontWeight.w400,
-              height: 1.18, // 13px / 11px ≈ 1.18 — khớp Figma 13px text height
+                  const SizedBox(height: 4),
+                  Text(
+                    item['label'] as String,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: active ? _green : _grey,
+                      fontWeight: active ? FontWeight.w600 : FontWeight.w400,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
+          );
+        }),
       ),
     );
   }

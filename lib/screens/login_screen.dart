@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../cubit/auth_cubit.dart';
+import '../cubit/auth_state.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,6 +22,14 @@ class _LoginScreenState extends State<LoginScreen> {
   static const _borderGrey = Color(0xFFE0E0E0);
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AuthCubit>().tryAutoLogin();
+    });
+  }
+
+  @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
@@ -26,62 +37,110 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _submit() {
-    if (_formKey.currentState!.validate()) {
-      Navigator.pushReplacementNamed(context, '/home');
-    }
+    if (!_formKey.currentState!.validate()) return;
+    context.read<AuthCubit>().login(
+          _emailController.text.trim(),
+          _passwordController.text,
+        );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 48),
-                Center(child: _buildLogo()),
-                const SizedBox(height: 32),
-                const Text(
-                  'Chào mừng trở lại',
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    color: _textDark,
-                    height: 1.2,
-                  ),
+    return BlocConsumer<AuthCubit, AuthState>(
+      listener: (context, state) {
+        if (state is AuthAuthenticated) {
+          Navigator.pushReplacementNamed(context, '/home');
+        } else if (state is AuthError) {
+          showDialog<void>(
+            context: context,
+            builder: (_) => AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              title: const Row(
+                children: [
+                  Icon(Icons.error_outline, color: Color(0xFFE53935), size: 22),
+                  SizedBox(width: 8),
+                  Text('Đăng nhập thất bại',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                ],
+              ),
+              content: Text(state.message, style: const TextStyle(fontSize: 14)),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Đóng',
+                      style: TextStyle(color: Color(0xFF2D5A27), fontWeight: FontWeight.w600)),
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Khám phá vẻ đẹp Việt Nam cùng chúng tôi.',
-                  style: TextStyle(fontSize: 14, color: _textGrey),
-                ),
-                const SizedBox(height: 32),
-                _buildLabel('Email'),
-                const SizedBox(height: 6),
-                _buildEmailField(),
-                const SizedBox(height: 16),
-                _buildPasswordHeader(),
-                const SizedBox(height: 6),
-                _buildPasswordField(),
-                const SizedBox(height: 24),
-                _buildLoginButton(),
-                const SizedBox(height: 24),
-                _buildDivider(),
-                const SizedBox(height: 20),
-                _buildSocialButtons(),
-                const SizedBox(height: 32),
-                _buildSignUpRow(),
-                const SizedBox(height: 24),
               ],
             ),
-          ),
-        ),
-      ),
+          );
+        }
+      },
+      builder: (context, state) {
+        final isLoading = state is AuthLoading;
+        return Stack(
+          children: [
+            Scaffold(
+              backgroundColor: Colors.white,
+              body: SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 48),
+                        Center(child: _buildLogo()),
+                        const SizedBox(height: 32),
+                        const Text(
+                          'Chào mừng trở lại',
+                          style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                            color: _textDark,
+                            height: 1.2,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Khám phá vẻ đẹp Việt Nam cùng chúng tôi.',
+                          style: TextStyle(fontSize: 14, color: _textGrey),
+                        ),
+                        const SizedBox(height: 32),
+                        _buildLabel('Email'),
+                        const SizedBox(height: 6),
+                        _buildEmailField(),
+                        const SizedBox(height: 16),
+                        _buildPasswordHeader(),
+                        const SizedBox(height: 6),
+                        _buildPasswordField(),
+                        const SizedBox(height: 24),
+                        _buildLoginButton(isLoading),
+                        const SizedBox(height: 24),
+                        _buildDivider(),
+                        const SizedBox(height: 20),
+                        _buildSocialButtons(),
+                        const SizedBox(height: 32),
+                        _buildSignUpRow(),
+                        const SizedBox(height: 24),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            if (isLoading)
+              const Opacity(
+                opacity: 0.4,
+                child: ModalBarrier(dismissible: false, color: Colors.black),
+              ),
+            if (isLoading)
+              const Center(
+                child: CircularProgressIndicator(color: Color(0xFF2D5A27)),
+              ),
+          ],
+        );
+      },
     );
   }
 
@@ -92,41 +151,27 @@ class _LoginScreenState extends State<LoginScreen> {
         Container(
           width: 48,
           height: 48,
-          decoration: const BoxDecoration(
-            color: _green,
-            shape: BoxShape.circle,
-          ),
+          decoration: const BoxDecoration(color: _green, shape: BoxShape.circle),
           child: const Icon(Icons.explore, color: Colors.white, size: 26),
         ),
         const SizedBox(height: 8),
         const Text(
           'Vietnam Explore',
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            color: _textDark,
-          ),
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: _textDark),
         ),
       ],
     );
   }
 
-  Widget _buildLabel(String text) {
-    return Text(
-      text,
-      style: const TextStyle(fontSize: 13, color: _textGrey),
-    );
-  }
+  Widget _buildLabel(String text) =>
+      Text(text, style: const TextStyle(fontSize: 13, color: _textGrey));
 
   Widget _buildEmailField() {
     return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
       style: const TextStyle(fontSize: 15, color: _textDark),
-      decoration: _inputDecoration(
-        hint: 'abc@gmail.com',
-        icon: Icons.mail_outline,
-      ),
+      decoration: _inputDecoration(hint: 'abc@gmail.com', icon: Icons.mail_outline),
       validator: (v) {
         if (v == null || v.trim().isEmpty) return 'Vui lòng nhập email';
         final emailRegex = RegExp(r'^[\w.+-]+@[\w-]+\.[a-z]{2,}$', caseSensitive: false);
@@ -176,11 +221,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  InputDecoration _inputDecoration({
-    String? hint,
-    required IconData icon,
-    Widget? suffix,
-  }) {
+  InputDecoration _inputDecoration({String? hint, required IconData icon, Widget? suffix}) {
     return InputDecoration(
       hintText: hint,
       hintStyle: const TextStyle(color: _textGrey),
@@ -211,22 +252,24 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildLoginButton() {
+  Widget _buildLoginButton(bool isLoading) {
     return SizedBox(
       width: double.infinity,
       height: 52,
       child: ElevatedButton(
-        onPressed: _submit,
+        onPressed: isLoading ? null : _submit,
         style: ElevatedButton.styleFrom(
           backgroundColor: _green,
           foregroundColor: Colors.white,
+          disabledBackgroundColor: _green.withValues(alpha: 0.6),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           elevation: 0,
         ),
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Đăng nhập', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            Text('Đăng nhập',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
             SizedBox(width: 8),
             Icon(Icons.arrow_forward, size: 18),
           ],
@@ -278,7 +321,9 @@ class _LoginScreenState extends State<LoginScreen> {
             size: 22,
           ),
           const SizedBox(width: 8),
-          Text(label, style: const TextStyle(fontSize: 14, color: _textDark, fontWeight: FontWeight.w500)),
+          Text(label,
+              style: const TextStyle(
+                  fontSize: 14, color: _textDark, fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -297,10 +342,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: const Text(
                   'Đăng ký ngay',
                   style: TextStyle(
-                    fontSize: 14,
-                    color: _green,
-                    fontWeight: FontWeight.w600,
-                  ),
+                      fontSize: 14, color: _green, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
