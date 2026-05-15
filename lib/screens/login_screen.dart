@@ -8,6 +8,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _passwordVisible = false;
@@ -24,6 +25,12 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  void _submit() {
+    if (_formKey.currentState!.validate()) {
+      Navigator.pushReplacementNamed(context, '/home');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,44 +38,47 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 48),
-              Center(child: _buildLogo()),
-              const SizedBox(height: 32),
-              const Text(
-                'Chào mừng trở lại',
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  color: _textDark,
-                  height: 1.2,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 48),
+                Center(child: _buildLogo()),
+                const SizedBox(height: 32),
+                const Text(
+                  'Chào mừng trở lại',
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    color: _textDark,
+                    height: 1.2,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Khám phá vẻ đẹp Việt Nam cùng chúng tôi.',
-                style: TextStyle(fontSize: 14, color: _textGrey),
-              ),
-              const SizedBox(height: 32),
-              _buildLabel('Email'),
-              const SizedBox(height: 6),
-              _buildEmailField(),
-              const SizedBox(height: 16),
-              _buildPasswordHeader(),
-              const SizedBox(height: 6),
-              _buildPasswordField(),
-              const SizedBox(height: 24),
-              _buildLoginButton(),
-              const SizedBox(height: 24),
-              _buildDivider(),
-              const SizedBox(height: 20),
-              _buildSocialButtons(),
-              const SizedBox(height: 32),
-              _buildSignUpRow(),
-              const SizedBox(height: 24),
-            ],
+                const SizedBox(height: 8),
+                const Text(
+                  'Khám phá vẻ đẹp Việt Nam cùng chúng tôi.',
+                  style: TextStyle(fontSize: 14, color: _textGrey),
+                ),
+                const SizedBox(height: 32),
+                _buildLabel('Email'),
+                const SizedBox(height: 6),
+                _buildEmailField(),
+                const SizedBox(height: 16),
+                _buildPasswordHeader(),
+                const SizedBox(height: 6),
+                _buildPasswordField(),
+                const SizedBox(height: 24),
+                _buildLoginButton(),
+                const SizedBox(height: 24),
+                _buildDivider(),
+                const SizedBox(height: 20),
+                _buildSocialButtons(),
+                const SizedBox(height: 32),
+                _buildSignUpRow(),
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),
@@ -109,28 +119,20 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildEmailField() {
-    return TextField(
+    return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
       style: const TextStyle(fontSize: 15, color: _textDark),
-      decoration: InputDecoration(
-        hintText: 'abc@gmail.com',
-        hintStyle: const TextStyle(color: _textGrey),
-        prefixIcon: const Icon(Icons.mail_outline, color: _textGrey, size: 20),
-        contentPadding: const EdgeInsets.symmetric(vertical: 14),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: _borderGrey),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: _borderGrey),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: _green, width: 1.5),
-        ),
+      decoration: _inputDecoration(
+        hint: 'abc@gmail.com',
+        icon: Icons.mail_outline,
       ),
+      validator: (v) {
+        if (v == null || v.trim().isEmpty) return 'Vui lòng nhập email';
+        final emailRegex = RegExp(r'^[\w.+-]+@[\w-]+\.[a-z]{2,}$', caseSensitive: false);
+        if (!emailRegex.hasMatch(v.trim())) return 'Email không hợp lệ';
+        return null;
+      },
     );
   }
 
@@ -151,13 +153,13 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildPasswordField() {
-    return TextField(
+    return TextFormField(
       controller: _passwordController,
       obscureText: !_passwordVisible,
       style: const TextStyle(fontSize: 15, color: _textDark),
-      decoration: InputDecoration(
-        prefixIcon: const Icon(Icons.lock_outline, color: _textGrey, size: 20),
-        suffixIcon: GestureDetector(
+      decoration: _inputDecoration(
+        icon: Icons.lock_outline,
+        suffix: GestureDetector(
           onTap: () => setState(() => _passwordVisible = !_passwordVisible),
           child: Icon(
             _passwordVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
@@ -165,20 +167,47 @@ class _LoginScreenState extends State<LoginScreen> {
             size: 20,
           ),
         ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 14),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: _borderGrey),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: _borderGrey),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: _green, width: 1.5),
-        ),
       ),
+      validator: (v) {
+        if (v == null || v.isEmpty) return 'Vui lòng nhập mật khẩu';
+        if (v.length < 6) return 'Mật khẩu phải có ít nhất 6 ký tự';
+        return null;
+      },
+    );
+  }
+
+  InputDecoration _inputDecoration({
+    String? hint,
+    required IconData icon,
+    Widget? suffix,
+  }) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(color: _textGrey),
+      prefixIcon: Icon(icon, color: _textGrey, size: 20),
+      suffixIcon: suffix,
+      contentPadding: const EdgeInsets.symmetric(vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: _borderGrey),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: _borderGrey),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: _green, width: 1.5),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: Color(0xFFE53935)),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: Color(0xFFE53935), width: 1.5),
+      ),
+      errorStyle: const TextStyle(fontSize: 12, color: Color(0xFFE53935)),
     );
   }
 
@@ -187,7 +216,7 @@ class _LoginScreenState extends State<LoginScreen> {
       width: double.infinity,
       height: 52,
       child: ElevatedButton(
-        onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
+        onPressed: _submit,
         style: ElevatedButton.styleFrom(
           backgroundColor: _green,
           foregroundColor: Colors.white,
@@ -225,14 +254,14 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildSocialButtons() {
     return Row(
       children: [
-        Expanded(child: _buildSocialButton('Google', 'assets/icon/google_logo.png', const Color(0xFFDB4437))),
+        Expanded(child: _buildSocialButton('Google', const Color(0xFFDB4437))),
         const SizedBox(width: 12),
-        Expanded(child: _buildSocialButton('Facebook', 'assets/icon/facebook_logo.png', const Color(0xFF1877F2))),
+        Expanded(child: _buildSocialButton('Facebook', const Color(0xFF1877F2))),
       ],
     );
   }
 
-  Widget _buildSocialButton(String label, String iconPath, Color iconColor) {
+  Widget _buildSocialButton(String label, Color iconColor) {
     return OutlinedButton(
       onPressed: () {},
       style: OutlinedButton.styleFrom(
@@ -249,10 +278,7 @@ class _LoginScreenState extends State<LoginScreen> {
             size: 22,
           ),
           const SizedBox(width: 8),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 14, color: _textDark, fontWeight: FontWeight.w500),
-          ),
+          Text(label, style: const TextStyle(fontSize: 14, color: _textDark, fontWeight: FontWeight.w500)),
         ],
       ),
     );

@@ -8,6 +8,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -20,6 +21,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   static const _textDark = Color(0xFF1A1A1A);
   static const _textGrey = Color(0xFF757575);
   static const _borderGrey = Color(0xFFE0E0E0);
+  static const _red = Color(0xFFE53935);
 
   @override
   void dispose() {
@@ -30,6 +32,58 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
+  void _submit() {
+    final formValid = _formKey.currentState!.validate();
+    if (!_agreed) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng đồng ý với điều khoản sử dụng'),
+          backgroundColor: _red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+    if (formValid) {
+      Navigator.pop(context);
+    }
+  }
+
+  InputDecoration _inputDecoration({
+    String? hint,
+    required IconData icon,
+    Widget? suffix,
+  }) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(color: _textGrey),
+      prefixIcon: Icon(icon, color: _textGrey, size: 20),
+      suffixIcon: suffix,
+      contentPadding: const EdgeInsets.symmetric(vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: _borderGrey),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: _borderGrey),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: _green, width: 1.5),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: _red),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: _red, width: 1.5),
+      ),
+      errorStyle: const TextStyle(fontSize: 12, color: _red),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,88 +91,138 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 16),
-              const Text(
-                'Vietnam Explore',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: _textDark,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 16),
+                const Text(
+                  'Vietnam Explore',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: _textDark,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 32),
-              const Text(
-                'Tạo tài khoản mới',
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  color: _textDark,
-                  height: 1.2,
+                const SizedBox(height: 32),
+                const Text(
+                  'Tạo tài khoản mới',
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    color: _textDark,
+                    height: 1.2,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Chào mừng bạn gia nhập cộng đồng yêu du lịch Việt Nam.',
-                style: TextStyle(fontSize: 14, color: _textGrey),
-              ),
-              const SizedBox(height: 28),
-              _buildLabel('Họ tên'),
-              const SizedBox(height: 6),
-              _buildTextField(
-                controller: _nameController,
-                hint: 'Nguyễn Văn A',
-                icon: Icons.person_outline,
-              ),
-              const SizedBox(height: 16),
-              _buildLabel('Email'),
-              const SizedBox(height: 6),
-              _buildTextField(
-                controller: _emailController,
-                hint: 'example@email.com',
-                icon: Icons.mail_outline,
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 16),
-              _buildLabel('Mật khẩu'),
-              const SizedBox(height: 6),
-              _buildPasswordField(
-                controller: _passwordController,
-                visible: _passwordVisible,
-                onToggle: () => setState(() => _passwordVisible = !_passwordVisible),
-                icon: Icons.lock_outline,
-              ),
-              const SizedBox(height: 16),
-              _buildLabel('Xác nhận mật khẩu'),
-              const SizedBox(height: 6),
-              _buildPasswordField(
-                controller: _confirmController,
-                visible: _confirmVisible,
-                onToggle: () => setState(() => _confirmVisible = !_confirmVisible),
-                icon: Icons.lock_reset_outlined,
-              ),
-              const SizedBox(height: 16),
-              _buildAgreementRow(),
-              const SizedBox(height: 24),
-              _buildRegisterButton(),
-              const SizedBox(height: 24),
-              _buildDivider(),
-              const SizedBox(height: 20),
-              _buildSocialButtons(),
-              const SizedBox(height: 28),
-              _buildLoginRow(),
-              const SizedBox(height: 20),
-              const Center(
-                child: Text(
-                  '© 2024 Vietnam Explore Travel. All rights reserved.',
-                  style: TextStyle(fontSize: 11, color: _textGrey),
-                  textAlign: TextAlign.center,
+                const SizedBox(height: 8),
+                const Text(
+                  'Chào mừng bạn gia nhập cộng đồng yêu du lịch Việt Nam.',
+                  style: TextStyle(fontSize: 14, color: _textGrey),
                 ),
-              ),
-              const SizedBox(height: 24),
-            ],
+                const SizedBox(height: 28),
+                _buildLabel('Họ tên'),
+                const SizedBox(height: 6),
+                TextFormField(
+                  controller: _nameController,
+                  style: const TextStyle(fontSize: 15, color: _textDark),
+                  decoration: _inputDecoration(
+                    hint: 'Nguyễn Văn A',
+                    icon: Icons.person_outline,
+                  ),
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return 'Vui lòng nhập họ tên';
+                    if (v.trim().length < 2) return 'Họ tên phải có ít nhất 2 ký tự';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                _buildLabel('Email'),
+                const SizedBox(height: 6),
+                TextFormField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  style: const TextStyle(fontSize: 15, color: _textDark),
+                  decoration: _inputDecoration(
+                    hint: 'example@email.com',
+                    icon: Icons.mail_outline,
+                  ),
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return 'Vui lòng nhập email';
+                    final emailRegex = RegExp(r'^[\w.+-]+@[\w-]+\.[a-z]{2,}$', caseSensitive: false);
+                    if (!emailRegex.hasMatch(v.trim())) return 'Email không hợp lệ';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                _buildLabel('Mật khẩu'),
+                const SizedBox(height: 6),
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: !_passwordVisible,
+                  style: const TextStyle(fontSize: 15, color: _textDark),
+                  decoration: _inputDecoration(
+                    icon: Icons.lock_outline,
+                    suffix: GestureDetector(
+                      onTap: () => setState(() => _passwordVisible = !_passwordVisible),
+                      child: Icon(
+                        _passwordVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                        color: _textGrey,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                  validator: (v) {
+                    if (v == null || v.isEmpty) return 'Vui lòng nhập mật khẩu';
+                    if (v.length < 6) return 'Mật khẩu phải có ít nhất 6 ký tự';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                _buildLabel('Xác nhận mật khẩu'),
+                const SizedBox(height: 6),
+                TextFormField(
+                  controller: _confirmController,
+                  obscureText: !_confirmVisible,
+                  style: const TextStyle(fontSize: 15, color: _textDark),
+                  decoration: _inputDecoration(
+                    icon: Icons.lock_reset_outlined,
+                    suffix: GestureDetector(
+                      onTap: () => setState(() => _confirmVisible = !_confirmVisible),
+                      child: Icon(
+                        _confirmVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                        color: _textGrey,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                  validator: (v) {
+                    if (v == null || v.isEmpty) return 'Vui lòng xác nhận mật khẩu';
+                    if (v != _passwordController.text) return 'Mật khẩu không khớp';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                _buildAgreementRow(),
+                const SizedBox(height: 24),
+                _buildRegisterButton(),
+                const SizedBox(height: 24),
+                _buildDivider(),
+                const SizedBox(height: 20),
+                _buildSocialButtons(),
+                const SizedBox(height: 28),
+                _buildLoginRow(),
+                const SizedBox(height: 20),
+                const Center(
+                  child: Text(
+                    '© 2024 Vietnam Explore Travel. All rights reserved.',
+                    style: TextStyle(fontSize: 11, color: _textGrey),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),
@@ -127,74 +231,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Widget _buildLabel(String text) {
     return Text(text, style: const TextStyle(fontSize: 13, color: _textGrey));
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String hint,
-    required IconData icon,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
-    return TextField(
-      controller: controller,
-      keyboardType: keyboardType,
-      style: const TextStyle(fontSize: 15, color: _textDark),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(color: _textGrey),
-        prefixIcon: Icon(icon, color: _textGrey, size: 20),
-        contentPadding: const EdgeInsets.symmetric(vertical: 14),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: _borderGrey),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: _borderGrey),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: _green, width: 1.5),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPasswordField({
-    required TextEditingController controller,
-    required bool visible,
-    required VoidCallback onToggle,
-    required IconData icon,
-  }) {
-    return TextField(
-      controller: controller,
-      obscureText: !visible,
-      style: const TextStyle(fontSize: 15, color: _textDark),
-      decoration: InputDecoration(
-        prefixIcon: Icon(icon, color: _textGrey, size: 20),
-        suffixIcon: GestureDetector(
-          onTap: onToggle,
-          child: Icon(
-            visible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-            color: _textGrey,
-            size: 20,
-          ),
-        ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 14),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: _borderGrey),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: _borderGrey),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: _green, width: 1.5),
-        ),
-      ),
-    );
   }
 
   Widget _buildAgreementRow() {
@@ -242,7 +278,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       width: double.infinity,
       height: 52,
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: _submit,
         style: ElevatedButton.styleFrom(
           backgroundColor: _green,
           foregroundColor: Colors.white,
@@ -320,9 +356,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           style: ElevatedButton.styleFrom(
             backgroundColor: _green,
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             minimumSize: Size.zero,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
