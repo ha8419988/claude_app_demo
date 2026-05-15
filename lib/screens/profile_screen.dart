@@ -25,7 +25,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
-      appBar: _buildAppBar(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(bottom: 32),
         child: Column(
@@ -40,29 +39,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: Colors.white,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      title: const Text(
-        'Vietnam Explore',
-        style: TextStyle(
-          fontSize: 17,
-          fontWeight: FontWeight.w700,
-          color: _textDark,
-        ),
-      ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.search, color: _textDark),
-          onPressed: () {},
-        ),
-        const SizedBox(width: 4),
-      ],
     );
   }
 
@@ -269,7 +245,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         width: double.infinity,
         height: 48,
         child: OutlinedButton.icon(
-          onPressed: () {},
+          onPressed: () => Navigator.pushNamedAndRemoveUntil(
+            context, '/login', (_) => false),
           icon: const Icon(Icons.logout, color: _red, size: 18),
           label: const Text(
             'Đăng xuất',
