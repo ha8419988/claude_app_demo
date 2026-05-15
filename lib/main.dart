@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'screens/date_rating_screen.dart';
-import 'screens/my_page_screen.dart';
+import 'screens/explore_screen.dart';
+import 'screens/home_screen.dart';
+import 'screens/saved_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/register_screen.dart';
 import 'widgets/app_bottom_nav_bar.dart';
 
 void main() {
@@ -12,10 +15,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Preme Date Local',
       debugShowCheckedModeBanner: false,
-      home: MainScreen(),
+      initialRoute: '/login',
+      routes: {
+        '/login': (_) => const LoginScreen(),
+        '/register': (_) => const RegisterScreen(),
+        '/home': (_) => const MainScreen(),
+      },
     );
   }
 }
@@ -36,11 +44,10 @@ class _MainScreenState extends State<MainScreen> {
       body: IndexedStack(
         index: _currentIndex,
         children: const [
-          DateRatingScreen(),
-          _PlaceholderScreen('デート'),
-          _PlaceholderScreen('レポート'),
-          _PlaceholderScreen('お知らせ'),
-          MyPageScreen(),
+          HomeScreen(),
+          ExploreScreen(),
+          SavedScreen(),
+          _PlaceholderScreen('Cá nhân'),
         ],
       ),
       bottomNavigationBar: AppBottomNavBar(
