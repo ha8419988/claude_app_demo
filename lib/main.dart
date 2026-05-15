@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'screens/explore_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/profile_screen.dart';
 import 'screens/saved_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
@@ -47,25 +48,13 @@ class _MainScreenState extends State<MainScreen> {
           HomeScreen(),
           ExploreScreen(),
           SavedScreen(),
-          _PlaceholderScreen('Cá nhân'),
+          ProfileScreen(),
         ],
       ),
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: _currentIndex,
         onTap: (i) => setState(() => _currentIndex = i),
       ),
-    );
-  }
-}
-
-class _PlaceholderScreen extends StatelessWidget {
-  final String label;
-  const _PlaceholderScreen(this.label);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(child: Text(label)),
     );
   }
 }
