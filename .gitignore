@@ -44,3 +44,9 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 .mcp.json
+
+# Local development artifacts
+.claude/
+docs/superpowers/
+push.ps1
+stitch_home.png
