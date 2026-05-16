@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
+import '../widgets/base_dialog.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,8 +13,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _emailController = TextEditingController(text: 'a@gmail.com');
+  final _passwordController = TextEditingController(text: '123456');
   bool _passwordVisible = false;
 
   static const _green = Color(0xFF2D5A27);
@@ -51,27 +52,13 @@ class _LoginScreenState extends State<LoginScreen> {
         if (state is AuthAuthenticated) {
           Navigator.pushReplacementNamed(context, '/home');
         } else if (state is AuthError) {
-          showDialog<void>(
+          BaseDialog.show(
             context: context,
-            builder: (_) => AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              title: const Row(
-                children: [
-                  Icon(Icons.error_outline, color: Color(0xFFE53935), size: 22),
-                  SizedBox(width: 8),
-                  Text('Đăng nhập thất bại',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                ],
-              ),
-              content: Text(state.message, style: const TextStyle(fontSize: 14)),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Đóng',
-                      style: TextStyle(color: Color(0xFF2D5A27), fontWeight: FontWeight.w600)),
-                ),
-              ],
-            ),
+            type: DialogType.warning,
+            title: 'Đăng nhập thất bại',
+            message: state.message,
+            primaryButtonText: 'Thử lại',
+            customIcon: Icons.error_outline_rounded,
           );
         }
       },

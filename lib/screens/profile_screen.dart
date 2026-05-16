@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
+import '../widgets/base_dialog.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -260,9 +261,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         height: 48,
         child: OutlinedButton.icon(
           onPressed: () async {
-                await context.read<AuthCubit>().logout();
-                if (mounted) {
-                  Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+                final confirmed = await showLogoutDialog(context);
+                if (confirmed == true && mounted) {
+                  await context.read<AuthCubit>().logout();
+                  if (mounted) {
+                    Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+                  }
                 }
               },
           icon: const Icon(Icons.logout, color: _red, size: 18),
