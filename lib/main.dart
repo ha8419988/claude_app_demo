@@ -1,15 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'core/network/dio_client.dart';
-import 'cubit/auth_cubit.dart';
-import 'data/remote/auth_api.dart';
-import 'services/auth_service.dart';
-import 'screens/explore_screen.dart';
-import 'screens/home_screen.dart';
-import 'screens/profile_screen.dart';
-import 'screens/saved_screen.dart';
-import 'screens/login_screen.dart';
-import 'screens/register_screen.dart';
+import 'screens/date_rating_screen.dart';
+import 'screens/my_page_screen.dart';
+import 'screens/notification_screen.dart';
 import 'widgets/app_bottom_nav_bar.dart';
 
 void main() {
@@ -55,10 +47,11 @@ class _MainScreenState extends State<MainScreen> {
       body: IndexedStack(
         index: _currentIndex,
         children: const [
-          HomeScreen(),
-          ExploreScreen(),
-          SavedScreen(),
-          ProfileScreen(),
+          DateRatingScreen(),
+          _PlaceholderScreen('デート'),
+          _PlaceholderScreen('レポート'),
+          NotificationScreen(),
+          MyPageScreen(),
         ],
       ),
       bottomNavigationBar: AppBottomNavBar(

@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh run *)",
+      "Read(//Users/hoanganhnguyen/.claude/**)",
+      "Bash(curl -s https://raw.githubusercontent.com/vkhanhqui/figma-mcp-go/main/README.md)",
+      "Bash(gh api *)",
+      "Bash(brew --version)",
+      "Bash(brew install *)",
+      "Bash(npx --version)",
+      "mcp__figma-mcp-go__get_node"
+    ]
+  }
+}

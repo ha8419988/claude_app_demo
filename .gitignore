@@ -50,3 +50,5 @@ app.*.map.json
 docs/superpowers/
 push.ps1
 stitch_home.png
+pubspec.lock
+.claude/settings.local.json
