@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
 
 class DioClient {
-  static const _baseUrl = 'https://vietnam-explore-api.onrender.com/api';
+  // TODO: đổi lại sang Render URL sau khi deploy
+  // Android emulator dùng 10.0.2.2 để trỏ về localhost máy tính
+  static const _baseUrl = 'http://10.0.2.2:3000/api';
 
   static Dio create() {
     final dio = Dio(BaseOptions(
