@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:claude_app_demo/core/routes/app_routes.dart';
 import 'package:claude_app_demo/theme/app_colors.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -72,7 +73,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
 
-  void _skip() => Navigator.pushReplacementNamed(context, '/login');
+  void _skip() => Navigator.pushReplacementNamed(context, AppRoutes.login);
 
   @override
   Widget build(BuildContext context) {
@@ -124,13 +125,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         _PrimaryButton(
                           label: 'Đăng nhập',
                           onPressed: () => Navigator.pushReplacementNamed(
-                              context, '/login'),
+                              context, AppRoutes.login),
                         ),
                         const SizedBox(height: 12),
                         _OutlineButton(
                           label: 'Tạo tài khoản',
                           onPressed: () => Navigator.pushReplacementNamed(
-                              context, '/register'),
+                              context, AppRoutes.register),
                         ),
                       ],
                     )

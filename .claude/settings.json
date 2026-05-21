@@ -8,7 +8,18 @@
       "Bash(brew --version)",
       "Bash(brew install *)",
       "Bash(npx --version)",
-      "mcp__figma-mcp-go__get_node"
+      "mcp__figma-mcp-go__get_node",
+      "Bash(python -c \"import sys; html=sys.stdin.read\\(\\); start=html.find\\('<body'\\); end=html.find\\('</body>'\\)+7; print\\(html[start:end]\\)\")",
+      "PowerShell($html = Get-Content \"C:\\\\Temp\\\\success_screen.html\" -Raw; $start = $html.IndexOf\\('<body'\\); $end = $html.IndexOf\\('</body>'\\) + 7; $html.Substring\\($start, $end - $start\\) | Out-String | Select-Object -First 1)",
+      "PowerShell($r1 = Invoke-WebRequest -Uri \"https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sX2MwYTJmMjcyM2QzODQzZThiNTUxZDkzYmMyMDZkYjExEgsSBxCop5_O-QoYAZIBIwoKcHJvamVjdF9pZBIVQhMxOTYzNDQ3MDg2NjAyMjY3NTY5&filename=&opi=89354086\" -UseBasicParsing; $html = $r1.Content; $start = $html.IndexOf\\('<main'\\); $end = $html.IndexOf\\('</main>'\\) + 7; Write-Output $html.Substring\\($start, $end - $start\\))",
+      "PowerShell($r2 = Invoke-WebRequest -Uri \"https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sXzAwMDY1MjRmZjZiYjAzYmYwOTI1ZDNlM2FmMDQ2MjliEgsSBxCop5_O-QoYAZIBIwoKcHJvamVjdF9pZBIVQhMxOTYzNDQ3MDg2NjAyMjY3NTY5&filename=&opi=89354086\" -UseBasicParsing; $html = $r2.Content; $start = $html.IndexOf\\('<main'\\); $end = $html.IndexOf\\('</main>'\\) + 7; Write-Output $html.Substring\\($start, $end - $start\\))",
+      "Bash(Get-ChildItem -Path \"d:\\\\project-test\\\\claude_app_demo\\\\lib\\\\screens\" -ErrorAction SilentlyContinue)",
+      "Bash(Format-List)",
+      "Bash(not exist *)",
+      "Bash(mkdir -p /d/project-test/claude_app_demo/docs/superpowers/specs)"
+    ],
+    "additionalDirectories": [
+      "D:\\project-test\\claude_app_demo\\docs\\superpowers\\specs"
     ]
   }
 }

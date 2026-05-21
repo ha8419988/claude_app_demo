@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 import 'location_detail_screen.dart';
 
 class ExploreScreen extends StatefulWidget {
@@ -12,11 +13,6 @@ class ExploreScreen extends StatefulWidget {
 class _ExploreScreenState extends State<ExploreScreen> {
   int _filterIndex = 0;
   final _searchController = TextEditingController();
-
-  static const _green = Color(0xFF2D5A27);
-  static const _textDark = Color(0xFF1A1A1A);
-  static const _textGrey = Color(0xFF757575);
-  static const _bgGrey = Color(0xFFF5F5F5);
 
   static const _filters = ['Tất cả', 'Miền Bắc', 'Miền Trung', 'Miền Nam', 'Tây Nguyên'];
 
@@ -85,10 +81,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
         scrolledUnderElevation: 0,
         title: const Text(
           'Vietnam Explore',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: _textDark),
+          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.text),
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.search, color: _textDark), onPressed: () {}),
+          IconButton(icon: const Icon(Icons.search, color: AppColors.text), onPressed: () {}),
           const SizedBox(width: 4),
         ],
       ),
@@ -125,12 +121,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
         children: const [
           Text(
             'Khám phá 63 tỉnh thành',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: _textDark, height: 1.2),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.text, height: 1.2),
           ),
           SizedBox(height: 6),
           Text(
             'Từ đỉnh núi mây phủ đến bãi biển cát trắng,\nViệt Nam luôn có điều mới để khám phá.',
-            style: TextStyle(fontSize: 13, color: _textGrey, height: 1.5),
+            style: TextStyle(fontSize: 13, color: AppColors.textGrey, height: 1.5),
           ),
         ],
       ),
@@ -142,14 +138,14 @@ class _ExploreScreenState extends State<ExploreScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: TextField(
         controller: _searchController,
-        style: const TextStyle(fontSize: 14, color: _textDark),
+        style: const TextStyle(fontSize: 14, color: AppColors.text),
         decoration: InputDecoration(
           hintText: 'Tìm kiếm tỉnh thành...',
-          hintStyle: const TextStyle(fontSize: 14, color: _textGrey),
-          prefixIcon: const Icon(Icons.search, color: _textGrey, size: 20),
-          suffixIcon: const Icon(Icons.tune, color: _textGrey, size: 20),
+          hintStyle: const TextStyle(fontSize: 14, color: AppColors.textGrey),
+          prefixIcon: const Icon(Icons.search, color: AppColors.textGrey, size: 20),
+          suffixIcon: const Icon(Icons.tune, color: AppColors.textGrey, size: 20),
           filled: true,
-          fillColor: _bgGrey,
+          fillColor: AppColors.backgroundGrey,
           contentPadding: const EdgeInsets.symmetric(vertical: 12),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
@@ -175,16 +171,16 @@ class _ExploreScreenState extends State<ExploreScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
               decoration: BoxDecoration(
-                color: active ? _green : Colors.white,
+                color: active ? AppColors.primaryGreen : Colors.white,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: active ? _green : const Color(0xFFE0E0E0)),
+                border: Border.all(color: active ? AppColors.primaryGreen : AppColors.borderGrey),
               ),
               child: Text(
                 _filters[i],
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: active ? Colors.white : _textGrey,
+                  color: active ? Colors.white : AppColors.textGrey,
                 ),
               ),
             ),
@@ -240,7 +236,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         children: [
           const Text(
             'Tất cả tỉnh thành',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: _textDark),
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.text),
           ),
           const SizedBox(height: 12),
           GridView.builder(
@@ -260,7 +256,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   builder: (_) => LocationDetailScreen(
                     title: _provinces[i],
                     region: 'Việt Nam',
-                    regionColor: const Color(0xFF2D5A27),
+                    regionColor: AppColors.primaryGreen,
                     description: 'Khám phá vẻ đẹp và văn hóa đặc sắc của ${_provinces[i]}.',
                     imageUrl: 'https://picsum.photos/seed/${_provinces[i]}/800/420',
                   ),
@@ -268,11 +264,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.location_on_outlined, size: 16, color: _green),
+                  const Icon(Icons.location_on_outlined, size: 16, color: AppColors.primaryGreen),
                   const SizedBox(width: 6),
                   Text(
                     _provinces[i],
-                    style: const TextStyle(fontSize: 14, color: _textDark),
+                    style: const TextStyle(fontSize: 14, color: AppColors.text),
                   ),
                 ],
               ),
@@ -296,7 +292,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             icon: const Icon(Icons.map_outlined, size: 18),
             label: const Text('Xem bản đồ'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: _green,
+              backgroundColor: AppColors.primaryGreen,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -330,15 +326,15 @@ class _FeaturedCard extends StatelessWidget {
             CachedNetworkImage(
               imageUrl: data['image'] as String,
               fit: BoxFit.cover,
-              placeholder: (_, __) => Container(color: const Color(0xFFCCDDD0)),
-              errorWidget: (_, __, ___) => Container(color: const Color(0xFFCCDDD0)),
+              placeholder: (_, __) => Container(color: AppColors.cardPlaceholder),
+              errorWidget: (_, __, ___) => Container(color: AppColors.cardPlaceholder),
             ),
             Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Color(0xCC000000)],
+                  colors: [Colors.transparent, AppColors.overlayDark],
                   stops: [0.35, 1.0],
                 ),
               ),
