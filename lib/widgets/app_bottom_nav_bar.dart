@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 class AppBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -10,13 +11,11 @@ class AppBottomNavBar extends StatelessWidget {
     required this.onTap,
   });
 
-  static const _green = Color(0xFF2D5A27);
-  static const _grey = Color(0xFF9E9E9E);
-
   static const _items = [
     {'icon': Icons.home_outlined, 'activeIcon': Icons.home, 'label': 'Trang chủ'},
-    {'icon': Icons.explore_outlined, 'activeIcon': Icons.explore, 'label': 'Khám phá'},
-    {'icon': Icons.bookmark_outline, 'activeIcon': Icons.bookmark, 'label': 'Đã lưu'},
+    {'icon': Icons.chat_bubble_outline, 'activeIcon': Icons.chat_bubble, 'label': 'Tin nhắn'},
+    {'icon': Icons.map_outlined, 'activeIcon': Icons.map, 'label': 'Hành trình'},
+    {'icon': Icons.favorite_border, 'activeIcon': Icons.favorite, 'label': 'Yêu thích'},
     {'icon': Icons.person_outline, 'activeIcon': Icons.person, 'label': 'Cá nhân'},
   ];
 
@@ -25,7 +24,7 @@ class AppBottomNavBar extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFE6E6E6))),
+        border: Border(top: BorderSide(color: AppColors.borderGrey)),
       ),
       padding: const EdgeInsets.fromLTRB(8, 10, 8, 16),
       child: Row(
@@ -37,22 +36,29 @@ class AppBottomNavBar extends StatelessWidget {
             onTap: () => onTap(i),
             behavior: HitTestBehavior.opaque,
             child: SizedBox(
-              width: 72,
+              width: 64,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    active ? item['activeIcon'] as IconData : item['icon'] as IconData,
-                    color: active ? _green : _grey,
-                    size: 26,
+                    active
+                        ? item['activeIcon'] as IconData
+                        : item['icon'] as IconData,
+                    color: active
+                        ? AppColors.primary
+                        : AppColors.textLightGrey,
+                    size: 24,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     item['label'] as String,
                     style: TextStyle(
-                      fontSize: 11,
-                      color: active ? _green : _grey,
-                      fontWeight: active ? FontWeight.w600 : FontWeight.w400,
+                      fontSize: 10,
+                      color: active
+                          ? AppColors.primary
+                          : AppColors.textLightGrey,
+                      fontWeight:
+                          active ? FontWeight.w600 : FontWeight.w400,
                     ),
                     textAlign: TextAlign.center,
                   ),

@@ -1,5 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../core/routes/app_routes.dart';
+import '../theme/app_colors.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -9,43 +11,27 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _regionIndex = 0;
   final _searchController = TextEditingController();
+  int _categoryIndex = 0;
 
-  static const _green = Color(0xFF2D5A27);
-  static const _textDark = Color(0xFF1A1A1A);
-  static const _textGrey = Color(0xFF757575);
-  static const _bgGrey = Color(0xFFF5F5F5);
-  static const _borderGrey = Color(0xFFE0E0E0);
-
-  static const _regions = ['Tất cả', 'Miền Bắc', 'Miền Nam', 'Miền Trung'];
-
-  static const _destinations = [
-    {
-      'title': 'Ninh Bình',
-      'subtitle': 'Quần thể Tràng An',
-      'image':
-          'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=600&q=80',
-    },
-    {
-      'title': 'Phú Quốc',
-      'subtitle': 'Đảo ngọc miền Nam',
-      'image':
-          'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=600&q=80',
-    },
-    {
-      'title': 'Hội An',
-      'subtitle': 'Phố cổ nghìn năm',
-      'image':
-          'https://images.unsplash.com/photo-1583417457561-7eadbd3a4001?w=600&q=80',
-    },
+  static const _cities = [
+    ('Hà Nội', 'https://images.unsplash.com/photo-1509030450996-dd1a26dda07a?w=400&q=80'),
+    ('TP.HCM', 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=400&q=80'),
+    ('Đà Nẵng', 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=400&q=80'),
+    ('Hội An', 'https://images.unsplash.com/photo-1583417457561-7eadbd3a4001?w=400&q=80'),
   ];
 
-  static const _topics = [
-    {'icon': Icons.landscape, 'label': 'Núi non'},
-    {'icon': Icons.location_on_outlined, 'label': 'Điểm đến'},
-    {'icon': Icons.restaurant_outlined, 'label': 'Ẩm thực'},
-    {'icon': Icons.account_balance_outlined, 'label': 'Văn hóa'},
+  static const _popular = [
+    ('Sapa', 'Lào Cai', 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400&q=80'),
+    ('Thác Bản Giốc', 'Cao Bằng', 'https://images.unsplash.com/photo-1570366583862-f91883984fde?w=400&q=80'),
+    ('Vịnh Hạ Long', 'Quảng Ninh', 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=400&q=80'),
+  ];
+
+  static const _categories = [
+    (Icons.beach_access_outlined, 'Biển đảo'),
+    (Icons.terrain_outlined, 'Núi rừng'),
+    (Icons.restaurant_outlined, 'Ẩm thực'),
+    (Icons.account_balance_outlined, 'Văn hóa'),
   ];
 
   @override
@@ -57,75 +43,83 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: _buildAppBar(),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildGreeting(),
-            _buildSearchBar(),
-            const SizedBox(height: 24),
-            _buildRegionTabs(),
-            const SizedBox(height: 24),
-            _buildSectionHeader('Địa điểm nổi bật'),
-            const SizedBox(height: 12),
-            _buildDestinationCards(),
-            const SizedBox(height: 28),
-            _buildSectionHeader('Tìm kiếm theo chủ đề'),
-            const SizedBox(height: 12),
-            _buildTopicsGrid(),
-            const SizedBox(height: 32),
-          ],
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(),
+              _buildSearchBar(),
+              const SizedBox(height: 20),
+              _buildCityCards(),
+              const SizedBox(height: 24),
+              _buildSectionHeader('Điểm đến phổ biến'),
+              const SizedBox(height: 12),
+              _buildPopularCards(),
+              const SizedBox(height: 24),
+              _buildCategories(),
+              const SizedBox(height: 24),
+              _buildSectionHeader('Dành riêng cho bạn'),
+              const SizedBox(height: 12),
+              _buildForYouCard(),
+              const SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: Colors.white,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      title: const Text(
-        'Vietnam Explore',
-        style: TextStyle(
-          fontSize: 17,
-          fontWeight: FontWeight.w700,
-          color: _textDark,
-        ),
-      ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.search, color: _textDark),
-          onPressed: () {},
-        ),
-        const SizedBox(width: 4),
-      ],
-    );
-  }
-
-  Widget _buildGreeting() {
+  Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text(
-            'Xin chào, Người lữ hành',
-            style: TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.bold,
-              color: _textDark,
-              height: 1.2,
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+      child: Row(
+        children: [
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Chào, Người lữ hành 👋',
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.text),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'Bạn muốn khám phá đâu hôm nay?',
+                  style: TextStyle(fontSize: 14, color: AppColors.textGrey),
+                ),
+              ],
             ),
           ),
-          SizedBox(height: 6),
-          Text(
-            'Hành trình khám phá vẻ đẹp đất tiên của\nViệt Nam bắt đầu từ đây.',
-            style: TextStyle(fontSize: 14, color: _textGrey, height: 1.5),
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications_outlined,
+                    color: AppColors.text, size: 26),
+                onPressed: () {},
+              ),
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                      color: AppColors.primary, shape: BoxShape.circle),
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: 20),
+          const SizedBox(width: 4),
+          CircleAvatar(
+            radius: 20,
+            backgroundColor: AppColors.primary.withValues(alpha: 0.15),
+            child: const Icon(Icons.person, color: AppColors.primary, size: 22),
+          ),
         ],
       ),
     );
@@ -134,55 +128,106 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildSearchBar() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: TextField(
-        controller: _searchController,
-        style: const TextStyle(fontSize: 14, color: _textDark),
-        decoration: InputDecoration(
-          hintText: 'Tìm kiếm điểm đến, trải nghiệm...',
-          hintStyle: const TextStyle(fontSize: 14, color: _textGrey),
-          prefixIcon: const Icon(Icons.search, color: _textGrey, size: 20),
-          filled: true,
-          fillColor: _bgGrey,
-          contentPadding: const EdgeInsets.symmetric(vertical: 12),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              readOnly: true,
+              onTap: () => Navigator.pushNamed(
+                context, AppRoutes.searchResults,
+                arguments: _searchController.text.trim(),
+              ),
+              style: const TextStyle(fontSize: 14, color: AppColors.text),
+              decoration: InputDecoration(
+                hintText: 'Bạn muốn đi đâu?',
+                hintStyle:
+                    const TextStyle(fontSize: 14, color: AppColors.textGrey),
+                prefixIcon: const Icon(Icons.search,
+                    color: AppColors.textGrey, size: 20),
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppColors.borderGrey),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppColors.borderGrey),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide:
+                      const BorderSide(color: AppColors.primary, width: 1.5),
+                ),
+              ),
+            ),
           ),
-        ),
+          const SizedBox(width: 10),
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child:
+                const Icon(Icons.tune, color: Colors.white, size: 22),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildRegionTabs() {
+  Widget _buildCityCards() {
     return SizedBox(
-      height: 36,
+      height: 130,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: _regions.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (_, i) {
-          final active = _regionIndex == i;
-          return GestureDetector(
-            onTap: () => setState(() => _regionIndex = i),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-              decoration: BoxDecoration(
-                color: active ? _green : Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: active ? _green : _borderGrey),
-              ),
-              child: Text(
-                _regions[i],
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: active ? Colors.white : _textGrey,
+        itemCount: _cities.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (_, i) => ClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          child: SizedBox(
+            width: 110,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                CachedNetworkImage(
+                  imageUrl: _cities[i].$2,
+                  fit: BoxFit.cover,
+                  placeholder: (_, __) =>
+                      Container(color: AppColors.cardPlaceholder),
+                  errorWidget: (_, __, ___) =>
+                      Container(color: AppColors.cardPlaceholder),
                 ),
-              ),
+                Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.transparent, AppColors.overlayDark],
+                      stops: [0.4, 1.0],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 10,
+                  bottom: 10,
+                  child: Text(
+                    _cities[i].$1,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
@@ -193,170 +238,205 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
-              color: _textDark,
-            ),
-          ),
+          Text(title,
+              style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.text)),
           GestureDetector(
             onTap: () {},
-            child: const Text(
-              'Xem tất cả',
-              style: TextStyle(
-                  fontSize: 13, color: _green, fontWeight: FontWeight.w500),
-            ),
+            child: const Text('Xem tất cả',
+                style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w500)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDestinationCards() {
+  Widget _buildPopularCards() {
     return SizedBox(
-      height: 200,
+      height: 190,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: _destinations.length,
+        itemCount: _popular.length,
         separatorBuilder: (_, __) => const SizedBox(width: 12),
-        itemBuilder: (_, i) {
-          final dest = _destinations[i];
-          return _DestinationCard(
-            title: dest['title'] as String,
-            subtitle: dest['subtitle'] as String,
-            imageUrl: dest['image'] as String,
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildTopicsGrid() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          childAspectRatio: 0.85,
-        ),
-        itemCount: _topics.length,
-        itemBuilder: (_, i) {
-          final topic = _topics[i];
-          return _TopicItem(
-            icon: topic['icon'] as IconData,
-            label: topic['label'] as String,
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _DestinationCard extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final String imageUrl;
-
-  const _DestinationCard({
-    required this.title,
-    required this.subtitle,
-    required this.imageUrl,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(14),
-      child: SizedBox(
-        width: 220,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            CachedNetworkImage(
-              imageUrl: imageUrl,
-              fit: BoxFit.cover,
-              placeholder: (_, __) => Container(color: const Color(0xFFCCDDD0)),
-              errorWidget: (_, __, ___) =>
-                  Container(color: const Color(0xFFCCDDD0)),
-            ),
-            Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Color(0xCC000000)],
-                  stops: [0.4, 1.0],
+        itemBuilder: (_, i) => ClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          child: SizedBox(
+            width: 200,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                CachedNetworkImage(
+                  imageUrl: _popular[i].$3,
+                  fit: BoxFit.cover,
+                  placeholder: (_, __) =>
+                      Container(color: AppColors.cardPlaceholder),
+                  errorWidget: (_, __, ___) =>
+                      Container(color: AppColors.cardPlaceholder),
                 ),
-              ),
-            ),
-            Positioned(
-              left: 12,
-              right: 12,
-              bottom: 12,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
+                Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.transparent, AppColors.overlayDark],
+                      stops: [0.35, 1.0],
                     ),
                   ),
-                  const SizedBox(height: 2),
+                ),
+                Positioned(
+                  left: 12,
+                  right: 12,
+                  bottom: 12,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(_popular[i].$1,
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.location_on,
+                              color: Colors.white70, size: 13),
+                          const SizedBox(width: 2),
+                          Text(_popular[i].$2,
+                              style: const TextStyle(
+                                  color: Colors.white70, fontSize: 12)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategories() {
+    return SizedBox(
+      height: 40,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        itemCount: _categories.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        itemBuilder: (_, i) {
+          final active = _categoryIndex == i;
+          return GestureDetector(
+            onTap: () => setState(() => _categoryIndex = i),
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: active ? AppColors.primary : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                    color: active ? AppColors.primary : AppColors.borderGrey),
+              ),
+              child: Row(
+                children: [
+                  Icon(_categories[i].$1,
+                      size: 16,
+                      color: active ? Colors.white : AppColors.textGrey),
+                  const SizedBox(width: 6),
                   Text(
-                    subtitle,
-                    style: const TextStyle(color: Colors.white70, fontSize: 12),
+                    _categories[i].$2,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: active ? Colors.white : AppColors.textGrey,
+                    ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
-}
 
-class _TopicItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-
-  const _TopicItem({required this.icon, required this.label});
-
-  static const _green = Color(0xFF2D5A27);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            color: const Color(0xFFEAF2EA),
-            borderRadius: BorderRadius.circular(16),
+  Widget _buildForYouCard() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: SizedBox(
+          height: 160,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              CachedNetworkImage(
+                imageUrl:
+                    'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=600&q=80',
+                fit: BoxFit.cover,
+                placeholder: (_, __) =>
+                    Container(color: AppColors.cardPlaceholder),
+                errorWidget: (_, __, ___) =>
+                    Container(color: AppColors.cardPlaceholder),
+              ),
+              Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [AppColors.overlayDark, Colors.transparent],
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 16,
+                top: 16,
+                bottom: 16,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Text('Mới',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600)),
+                    ),
+                    const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Du thuyền 5 sao',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700)),
+                        SizedBox(height: 4),
+                        Text('Nha Trang',
+                            style: TextStyle(
+                                color: Colors.white70, fontSize: 13)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          child: Icon(icon, color: _green, size: 26),
         ),
-        const SizedBox(height: 6),
-        Text(
-          label,
-          style: const TextStyle(
-              fontSize: 12,
-              color: Color(0xFF1A1A1A),
-              fontWeight: FontWeight.w500),
-          textAlign: TextAlign.center,
-        ),
-      ],
+      ),
     );
   }
 }

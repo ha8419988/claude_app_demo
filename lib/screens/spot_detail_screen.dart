@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 class SpotDetailScreen extends StatefulWidget {
   final String name;
@@ -21,12 +22,6 @@ class SpotDetailScreen extends StatefulWidget {
 
 class _SpotDetailScreenState extends State<SpotDetailScreen> {
   bool _saved = false;
-
-  static const _green = Color(0xFF2D5A27);
-  static const _textDark = Color(0xFF1A1A1A);
-  static const _textGrey = Color(0xFF757575);
-  static const _bgGreen = Color(0xFFEAF2EA);
-  static const _bgGrey = Color(0xFFF5F5F5);
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +66,7 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
         child: Container(
           margin: const EdgeInsets.all(8),
           decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-          child: const Icon(Icons.arrow_back, color: _textDark, size: 20),
+          child: Icon(Icons.arrow_back, color: AppColors.text, size: 20),
         ),
       ),
       actions: [
@@ -79,7 +74,7 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
           margin: const EdgeInsets.all(8),
           decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
           child: IconButton(
-            icon: const Icon(Icons.share_outlined, color: _textDark, size: 20),
+            icon: Icon(Icons.share_outlined, color: AppColors.text, size: 20),
             onPressed: () {},
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
@@ -93,7 +88,7 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
             padding: const EdgeInsets.all(6),
             child: Icon(
               _saved ? Icons.bookmark : Icons.bookmark_outline,
-              color: _saved ? _green : _textDark,
+              color: _saved ? AppColors.primaryGreen : AppColors.text,
               size: 20,
             ),
           ),
@@ -103,8 +98,8 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
         background: CachedNetworkImage(
           imageUrl: widget.imageUrl,
           fit: BoxFit.cover,
-          placeholder: (_, __) => Container(color: const Color(0xFFCCDDD0)),
-          errorWidget: (_, __, ___) => Container(color: const Color(0xFFCCDDD0)),
+          placeholder: (_, __) => Container(color: AppColors.cardPlaceholder),
+          errorWidget: (_, __, ___) => Container(color: AppColors.cardPlaceholder),
         ),
       ),
     );
@@ -119,31 +114,31 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: const Color(0xFFE3F2FD),
+              color: AppColors.blueLight,
               borderRadius: BorderRadius.circular(6),
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.workspace_premium_outlined, size: 13, color: Color(0xFF1565C0)),
-                SizedBox(width: 4),
-                Text('UNESCO', style: TextStyle(fontSize: 11, color: Color(0xFF1565C0), fontWeight: FontWeight.w600)),
+                Icon(Icons.workspace_premium_outlined, size: 13, color: AppColors.blue),
+                const SizedBox(width: 4),
+                Text('UNESCO', style: TextStyle(fontSize: 11, color: AppColors.blue, fontWeight: FontWeight.w600)),
               ],
             ),
           ),
           const SizedBox(height: 8),
           Text(
             widget.name,
-            style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: _textDark),
+            style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppColors.text),
           ),
           const SizedBox(height: 6),
           Row(
             children: [
-              const Icon(Icons.location_on_outlined, size: 14, color: _textGrey),
+              Icon(Icons.location_on_outlined, size: 14, color: AppColors.textGrey),
               const SizedBox(width: 4),
               Text(
                 '${widget.parentLocation}, Việt Nam',
-                style: const TextStyle(fontSize: 13, color: _textGrey),
+                style: TextStyle(fontSize: 13, color: AppColors.textGrey),
               ),
             ],
           ),
@@ -163,7 +158,7 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
           const SizedBox(width: 8),
           _StatChip(icon: Icons.access_time_outlined, label: '07:00–16:00'),
           const SizedBox(width: 8),
-          _StatChip(icon: Icons.star, label: '4.8 (2k+)', starColor: const Color(0xFFFFC107)),
+          _StatChip(icon: Icons.star, label: '4.8 (2k+)', starColor: AppColors.yellow),
         ],
       ),
     );
@@ -175,16 +170,16 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Giới thiệu chi tiết',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: _textDark),
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.text),
           ),
           const SizedBox(height: 10),
           Text(
             widget.desc.isNotEmpty
                 ? widget.desc
                 : 'Quần thể danh thắng Tràng An là di sản hỗn hợp đầu tiên của Việt Nam được UNESCO công nhận. Nằm giữa những ngọn núi đá vôi hùng vĩ hàng triệu năm tuổi, nơi đây là điểm giao thoa độc đáo giữa thiên nhiên kỳ vĩ, lịch sử văn hóa lâu đời và hệ sinh thái phong phú.',
-            style: const TextStyle(fontSize: 14, color: _textGrey, height: 1.6),
+            style: TextStyle(fontSize: 14, color: AppColors.textGrey, height: 1.6),
           ),
           const SizedBox(height: 12),
           Wrap(
@@ -210,15 +205,15 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Đánh giá cộng đồng',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: _textDark),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.text),
               ),
               GestureDetector(
                 onTap: () {},
-                child: const Text(
+                child: Text(
                   'Xem tất cả',
-                  style: TextStyle(fontSize: 13, color: _green, fontWeight: FontWeight.w500),
+                  style: TextStyle(fontSize: 13, color: AppColors.primaryGreen, fontWeight: FontWeight.w500),
                 ),
               ),
             ],
@@ -227,7 +222,7 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: _bgGrey,
+              color: AppColors.backgroundGrey,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
@@ -237,7 +232,7 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
                   children: [
                     CircleAvatar(
                       radius: 18,
-                      backgroundColor: _green,
+                      backgroundColor: AppColors.primaryGreen,
                       child: const Text('AN', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700)),
                     ),
                     const SizedBox(width: 10),
@@ -245,12 +240,12 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Minh Anh', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: _textDark)),
+                          Text('Minh Anh', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.text)),
                           Row(
                             children: [
-                              ...List.generate(5, (i) => const Icon(Icons.star, size: 12, color: Color(0xFFFFC107))),
+                              ...List.generate(5, (i) => Icon(Icons.star, size: 12, color: AppColors.yellow)),
                               const SizedBox(width: 6),
-                              const Text('2 ngày trước', style: TextStyle(fontSize: 11, color: _textGrey)),
+                              Text('2 ngày trước', style: TextStyle(fontSize: 11, color: AppColors.textGrey)),
                             ],
                           ),
                         ],
@@ -259,9 +254,9 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                const Text(
+                Text(
                   '"Trải nghiệm tuyệt vời! Chuyến đi thuyền qua các hang động thực sự rất ấn tượng. Cảnh quan thiên nhiên hùng vĩ, không khí trong lành. Nhất định sẽ quay lại!"',
-                  style: TextStyle(fontSize: 13, color: _textGrey, height: 1.5, fontStyle: FontStyle.italic),
+                  style: TextStyle(fontSize: 13, color: AppColors.textGrey, height: 1.5, fontStyle: FontStyle.italic),
                 ),
               ],
             ),
@@ -284,8 +279,8 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
               height: 150,
               width: double.infinity,
               fit: BoxFit.cover,
-              placeholder: (_, __) => Container(height: 150, color: _bgGreen),
-              errorWidget: (_, __, ___) => Container(height: 150, color: _bgGreen),
+              placeholder: (_, __) => Container(height: 150, color: AppColors.backgroundGreen),
+              errorWidget: (_, __, ___) => Container(height: 150, color: AppColors.backgroundGreen),
             ),
           ),
           const SizedBox(height: 10),
@@ -294,12 +289,12 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
               Expanded(
                 child: GestureDetector(
                   onTap: () {},
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.map_outlined, size: 16, color: _green),
-                      SizedBox(width: 6),
-                      Text('Xem trên bản đồ', style: TextStyle(fontSize: 13, color: _green, fontWeight: FontWeight.w600)),
+                      Icon(Icons.map_outlined, size: 16, color: AppColors.primaryGreen),
+                      const SizedBox(width: 6),
+                      Text('Xem trên bản đồ', style: TextStyle(fontSize: 13, color: AppColors.primaryGreen, fontWeight: FontWeight.w600)),
                     ],
                   ),
                 ),
@@ -310,7 +305,7 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
                   icon: const Icon(Icons.navigation_outlined, size: 16),
                   label: const Text('Chỉ đường ngay', style: TextStyle(fontSize: 13)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _green,
+                    backgroundColor: AppColors.primaryGreen,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     padding: const EdgeInsets.symmetric(vertical: 10),
@@ -335,7 +330,7 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
         child: ElevatedButton(
           onPressed: () {},
           style: ElevatedButton.styleFrom(
-            backgroundColor: _green,
+            backgroundColor: AppColors.primaryGreen,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             elevation: 4,
@@ -359,15 +354,15 @@ class _StatChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFFEAF2EA),
+        color: AppColors.backgroundGreen,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 13, color: starColor ?? const Color(0xFF2D5A27)),
+          Icon(icon, size: 13, color: starColor ?? AppColors.primaryGreen),
           const SizedBox(width: 4),
-          Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF1A1A1A))),
+          Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.text)),
         ],
       ),
     );
@@ -383,10 +378,10 @@ class _Hashtag extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: const Color(0xFFEAF2EA),
+        color: AppColors.backgroundGreen,
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Text(tag, style: const TextStyle(fontSize: 12, color: Color(0xFF2D5A27), fontWeight: FontWeight.w500)),
+      child: Text(tag, style: TextStyle(fontSize: 12, color: AppColors.primaryGreen, fontWeight: FontWeight.w500)),
     );
   }
 }

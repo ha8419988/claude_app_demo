@@ -131,7 +131,7 @@ class _NotificationListItem extends StatelessWidget {
             ? const Color(0xFFF2F2F2).withValues(alpha: 0.2)
             : Colors.white,
         border: const Border(
-          bottom: BorderSide(color: AppColors.greyBorder),
+          bottom: BorderSide(color: AppColors.borderGrey),
         ),
       ),
       child: Row(
@@ -142,7 +142,7 @@ class _NotificationListItem extends StatelessWidget {
             width: 38,
             height: 38,
             decoration: const BoxDecoration(
-              color: AppColors.greyBorder,
+              color: AppColors.borderGrey,
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
@@ -181,7 +181,7 @@ class _NotificationListItem extends StatelessWidget {
                   style: GoogleFonts.notoSansJp(
                     fontSize: 11,
                     fontWeight: FontWeight.w400,
-                    color: AppColors.greyArrow,
+                    color: AppColors.textLightGrey,
                     letterSpacing: -1,
                   ),
                 ),

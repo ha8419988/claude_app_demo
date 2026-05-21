@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../core/routes/app_routes.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 import '../theme/app_colors.dart';
@@ -18,10 +19,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController(text: '123456');
   bool _passwordVisible = false;
 
-  static const _textDark = AppColors.text;
-  static const _textGrey = Color(0xFF9E9E9E);
-  static const _borderGrey = Color(0xFFE8E0D8);
-
   @override
   void initState() {
     super.initState();
@@ -38,11 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _submit() {
-    if (!_formKey.currentState!.validate()) return;
-    context.read<AuthCubit>().login(
-          _emailController.text.trim(),
-          _passwordController.text,
-        );
+    Navigator.pushReplacementNamed(context, AppRoutes.home);
   }
 
   @override
@@ -50,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthAuthenticated) {
-          Navigator.pushReplacementNamed(context, '/home');
+          Navigator.pushReplacementNamed(context, AppRoutes.home);
         } else if (state is AuthError) {
           BaseDialog.show(
             context: context,
@@ -92,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   style: TextStyle(
                                     fontSize: 28,
                                     fontWeight: FontWeight.w700,
-                                    color: _textDark,
+                                    color: AppColors.text,
                                   ),
                                 ),
                               ),
@@ -103,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 14,
-                                    color: _textGrey,
+                                    color: AppColors.textLightGrey,
                                     height: 1.5,
                                   ),
                                 ),
@@ -182,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: _textDark,
+            color: AppColors.text,
           ),
         ),
       ],
@@ -194,7 +187,7 @@ class _LoginScreenState extends State<LoginScreen> {
         style: const TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w500,
-          color: _textDark,
+          color: AppColors.text,
         ),
       );
 
@@ -202,7 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
-      style: const TextStyle(fontSize: 15, color: _textDark),
+      style: const TextStyle(fontSize: 15, color: AppColors.text),
       decoration: _inputDecoration(
         hint: 'email@example.com',
         icon: Icons.mail_outline_rounded,
@@ -241,7 +234,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return TextFormField(
       controller: _passwordController,
       obscureText: !_passwordVisible,
-      style: const TextStyle(fontSize: 15, color: _textDark),
+      style: const TextStyle(fontSize: 15, color: AppColors.text),
       decoration: _inputDecoration(
         icon: Icons.lock_outline_rounded,
         suffix: GestureDetector(
@@ -250,7 +243,7 @@ class _LoginScreenState extends State<LoginScreen> {
             _passwordVisible
                 ? Icons.visibility_outlined
                 : Icons.visibility_off_outlined,
-            color: _textGrey,
+            color: AppColors.textLightGrey,
             size: 20,
           ),
         ),
@@ -270,19 +263,19 @@ class _LoginScreenState extends State<LoginScreen> {
   }) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: _textGrey, fontSize: 14),
-      prefixIcon: Icon(icon, color: _textGrey, size: 20),
+      hintStyle: const TextStyle(color: AppColors.textLightGrey, fontSize: 14),
+      prefixIcon: Icon(icon, color: AppColors.textLightGrey, size: 20),
       suffixIcon: suffix,
       filled: true,
       fillColor: Colors.white,
       contentPadding: const EdgeInsets.symmetric(vertical: 16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _borderGrey),
+        borderSide: const BorderSide(color: AppColors.borderGreyLight),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _borderGrey),
+        borderSide: const BorderSide(color: AppColors.borderGreyLight),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -290,13 +283,13 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFFE53935)),
+        borderSide: const BorderSide(color: AppColors.error),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFFE53935), width: 1.5),
+        borderSide: const BorderSide(color: AppColors.error, width: 1.5),
       ),
-      errorStyle: const TextStyle(fontSize: 12, color: Color(0xFFE53935)),
+      errorStyle: const TextStyle(fontSize: 12, color: AppColors.error),
     );
   }
 
@@ -325,19 +318,19 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildDivider() {
     return Row(
       children: [
-        const Expanded(child: Divider(color: _borderGrey, thickness: 1)),
+        const Expanded(child: Divider(color: AppColors.borderGreyLight, thickness: 1)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Text(
             'HOẶC TIẾP TỤC VỚI',
             style: TextStyle(
               fontSize: 11,
-              color: _textGrey.withValues(alpha: 0.8),
+              color: AppColors.textLightGrey.withValues(alpha: 0.8),
               letterSpacing: 0.5,
             ),
           ),
         ),
-        const Expanded(child: Divider(color: _borderGrey, thickness: 1)),
+        const Expanded(child: Divider(color: AppColors.borderGreyLight, thickness: 1)),
       ],
     );
   }
@@ -348,13 +341,13 @@ class _LoginScreenState extends State<LoginScreen> {
       children: [
         _SocialIconButton(
           icon: Icons.g_mobiledata_rounded,
-          iconColor: const Color(0xFFDB4437),
+          iconColor: AppColors.googleRed,
           onTap: () {},
         ),
         const SizedBox(width: 16),
         _SocialIconButton(
           icon: Icons.facebook_rounded,
-          iconColor: const Color(0xFF1877F2),
+          iconColor: AppColors.facebookBlue,
           onTap: () {},
         ),
         const SizedBox(width: 16),
@@ -372,11 +365,11 @@ class _LoginScreenState extends State<LoginScreen> {
       child: RichText(
         text: TextSpan(
           text: 'Chưa có tài khoản? ',
-          style: const TextStyle(fontSize: 14, color: _textGrey),
+          style: const TextStyle(fontSize: 14, color: AppColors.textLightGrey),
           children: [
             WidgetSpan(
               child: GestureDetector(
-                onTap: () => Navigator.pushNamed(context, '/register'),
+                onTap: () => Navigator.pushNamed(context, AppRoutes.register),
                 child: const Text(
                   'Đăng ký ngay',
                   style: TextStyle(
@@ -415,7 +408,7 @@ class _SocialIconButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFFE8E0D8)),
+          border: Border.all(color: AppColors.borderGreyLight),
         ),
         child: Icon(icon, color: iconColor, size: 28),
       ),
@@ -440,7 +433,7 @@ class _MountainPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFFE8E0D8)
+      ..color = AppColors.borderGreyLight
       ..style = PaintingStyle.fill;
 
     // Left mountain

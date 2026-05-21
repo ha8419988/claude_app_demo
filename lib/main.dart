@@ -3,16 +3,24 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'core/di/injection_container.dart' as di;
 import 'core/di/injection_container.dart';
+import 'core/routes/app_routes.dart';
 import 'cubit/auth_cubit.dart';
 import 'cubit/home_cubit.dart';
-import 'screens/explore_screen.dart';
+import 'screens/chat_screen.dart';
+import 'screens/journey_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/saved_screen.dart';
+import 'screens/search_results_screen.dart';
 import 'screens/splash_screen.dart';
+import 'screens/select_gender_screen.dart';
+import 'screens/select_language_screen.dart';
+import 'screens/setup_profile_screen.dart';
+import 'screens/upload_avatar_screen.dart';
+import 'screens/verify_email_screen.dart';
 import 'widgets/app_bottom_nav_bar.dart';
 
 void main() async {
@@ -34,18 +42,25 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Vietnam Explore',
         debugShowCheckedModeBanner: false,
-        initialRoute: '/splash',
+        initialRoute: AppRoutes.splash,
         routes: {
-          '/splash': (_) => const SplashScreen(),
-          '/onboarding': (_) => const OnboardingScreen(),
-          '/login': (_) => const LoginScreen(),
-          '/register': (_) => const RegisterScreen(),
-          '/home': (_) => const MainScreen(),
+          AppRoutes.splash: (_) => const SplashScreen(),
+          AppRoutes.onboarding: (_) => const OnboardingScreen(),
+          AppRoutes.login: (_) => const LoginScreen(),
+          AppRoutes.register: (_) => const RegisterScreen(),
+          AppRoutes.verifyEmail: (_) => const VerifyEmailScreen(),
+          AppRoutes.setupProfile: (_) => const SetupProfileScreen(),
+          AppRoutes.selectLanguage: (_) => const SelectLanguageScreen(),
+          AppRoutes.uploadAvatar: (_) => const UploadAvatarScreen(),
+          AppRoutes.selectGender: (_) => const SelectGenderScreen(),
+          AppRoutes.searchResults: (_) => const SearchResultsScreen(),
+          AppRoutes.home: (_) => const MainScreen(),
         },
       ),
     );
   }
 }
+
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -64,7 +79,8 @@ class _MainScreenState extends State<MainScreen> {
         index: _currentIndex,
         children: const [
           HomeScreen(),
-          ExploreScreen(),
+          ChatScreen(),
+          JourneyScreen(),
           SavedScreen(),
           ProfileScreen(),
         ],

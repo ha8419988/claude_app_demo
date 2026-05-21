@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../core/routes/app_routes.dart';
+import '../theme/app_colors.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -34,7 +36,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/onboarding');
+        Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
       }
     });
   }
@@ -57,10 +59,10 @@ class _SplashScreenState extends State<SplashScreen>
             fit: BoxFit.cover,
             loadingBuilder: (_, child, progress) {
               if (progress == null) return child;
-              return Container(color: const Color(0xFF1A2E1A));
+              return Container(color: AppColors.splashDark);
             },
             errorBuilder: (_, __, ___) =>
-                Container(color: const Color(0xFF1A2E1A)),
+                Container(color: AppColors.splashDark),
           ),
 
           // Gradient overlay

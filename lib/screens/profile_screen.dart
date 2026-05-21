@@ -1,26 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../core/routes/app_routes.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 import '../widgets/base_dialog.dart';
+import '../theme/app_colors.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
-
-  @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen> {
-  bool _notificationsEnabled = true;
-
-  static const _green = Color(0xFF2D5A27);
-  static const _textDark = Color(0xFF1A1A1A);
-  static const _textGrey = Color(0xFF757575);
-  static const _textLightGrey = Color(0xFF9E9E9E);
-  static const _orange = Color(0xFFF2994A);
-  static const _red = Color(0xFFE53935);
 
   static const _avatarUrl =
       'https://lh3.googleusercontent.com/aida-public/AB6AXuBM_BIDIDRz96tgpTBWgEMMS0-5dLQ33R2wE2vgv2MqLueM1xozDgQOz030YuE-cFCGMBYRXH_oIAXoACZrfhw8slh87nSL7CC6VlqMUmo9XqLAakfbSOzsMK_ZQLwoQ79ibS3i39I3Y6OQlBbKSDKS0-_5zD8Om8Dz5Y7Et2vE_Jfxqnbkem9Uf9OyaRpLXntkLntJx1BFkRwWW-tQORskxeNHKz8-HjK35ims7rIlC7qD8vrxdvJWogY1P9s1ctl2-R_oVTi-5aIz';
@@ -28,362 +16,287 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: AppColors.backgroundGrey,
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(bottom: 32),
         child: Column(
           children: [
-            _buildProfileHeader(),
+            _buildProfileHeader(context),
             const SizedBox(height: 16),
-            _buildMenuSection(),
-            const SizedBox(height: 8),
-            _buildLogoutButton(),
-            const SizedBox(height: 20),
-            _buildVersionText(),
+            _buildMenuSection(context),
+            const SizedBox(height: 16),
+            _buildLogoutButton(context),
+            const SizedBox(height: 16),
+            const Text(
+              'Vietnam Travel v2.4.0',
+              style: TextStyle(fontSize: 11, color: AppColors.textLightGrey),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildProfileHeader() {
+  Widget _buildProfileHeader(BuildContext context) {
     return Container(
       width: double.infinity,
       color: Colors.white,
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+      padding: const EdgeInsets.fromLTRB(20, 52, 20, 20),
       child: Column(
         children: [
-          CircleAvatar(
-            radius: 40,
-            backgroundColor: const Color(0xFFCCDDD0),
-            child: ClipOval(
-              child: CachedNetworkImage(
-                imageUrl: _avatarUrl,
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
-                placeholder: (_, __) =>
-                    Container(color: const Color(0xFFCCDDD0)),
-                errorWidget: (_, __, ___) => const Icon(
-                  Icons.person,
-                  size: 40,
-                  color: Colors.white,
+          Stack(
+            children: [
+              CircleAvatar(
+                radius: 44,
+                backgroundColor: AppColors.cardPlaceholder,
+                child: ClipOval(
+                  child: CachedNetworkImage(
+                    imageUrl: _avatarUrl,
+                    width: 88,
+                    height: 88,
+                    fit: BoxFit.cover,
+                    placeholder: (_, __) => Container(color: AppColors.cardPlaceholder),
+                    errorWidget: (_, __, ___) => const Icon(Icons.person, size: 44, color: Colors.white),
+                  ),
                 ),
               ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Builder(
-            builder: (context) {
-              final state = context.watch<AuthCubit>().state;
-              final name = state is AuthAuthenticated ? state.user.name : '';
-              final email = state is AuthAuthenticated ? state.user.email : '';
-              return Column(
-                children: [
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: _textDark,
-                    ),
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  width: 26,
+                  height: 26,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    email,
-                    style: const TextStyle(fontSize: 13, color: _textGrey),
-                  ),
-                ],
-              );
-            },
-          ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildBadge('Nhà thám hiểm',
-                  bg: const Color(0xFFEAF2EA), color: _green),
-              const SizedBox(width: 8),
-              _buildBadge('12 Chuyến đi',
-                  bg: const Color(0xFFF5F5F5), color: _textGrey),
+                  child: const Icon(Icons.edit, size: 13, color: Colors.white),
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 14),
-          OutlinedButton(
-            onPressed: () {},
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: _green),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-              minimumSize: const Size(0, 36),
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            child: const Text(
-              'Chỉnh sửa',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: _green,
-              ),
-            ),
-          ),
+          const SizedBox(height: 12),
+          Builder(builder: (context) {
+            final state = context.watch<AuthCubit>().state;
+            final name = state is AuthAuthenticated ? state.user.name : 'SheftyDesign';
+            final email = state is AuthAuthenticated ? state.user.email : 'abisolasherif23@gmail.com';
+            return Column(
+              children: [
+                Text(
+                  name,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.text),
+                ),
+                const SizedBox(height: 3),
+                Text(email, style: const TextStyle(fontSize: 13, color: AppColors.textGrey)),
+              ],
+            );
+          }),
+          const SizedBox(height: 20),
+          _buildStats(),
         ],
       ),
     );
   }
 
-  Widget _buildBadge(String label, {required Color bg, required Color color}) {
+  Widget _buildStats() {
+    final stats = [
+      {'value': '18', 'label': 'Chuyến đi'},
+      {'value': '12', 'label': 'Quốc gia'},
+      {'value': '4.9', 'label': 'Đánh giá'},
+      {'value': '32', 'label': 'Bình luận'},
+    ];
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(20),
+        color: AppColors.backgroundGrey,
+        borderRadius: BorderRadius.circular(14),
       ),
-      child: Text(
-        label,
-        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: color),
+      child: Row(
+        children: List.generate(stats.length * 2 - 1, (i) {
+          if (i.isOdd) {
+            return Container(width: 1, height: 32, color: AppColors.borderGrey);
+          }
+          final s = stats[i ~/ 2];
+          return Expanded(
+            child: Column(
+              children: [
+                Text(
+                  s['value']!,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.text),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  s['label']!,
+                  style: const TextStyle(fontSize: 11, color: AppColors.textGrey),
+                ),
+              ],
+            ),
+          );
+        }),
       ),
     );
   }
 
-  Widget _buildMenuSection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+  Widget _buildMenuSection(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.borderGrey),
+      ),
       child: Column(
         children: [
-          _buildItineraryCard(),
-          const SizedBox(height: 12),
-          _buildReviewCard(),
-          const SizedBox(height: 12),
-          _buildNotificationCard(),
-          const SizedBox(height: 12),
-          _buildLanguageCard(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildItineraryCard() {
-    return _MenuCard(
-      iconWidget: _IconBox(
-        icon: Icons.calendar_today_outlined,
-        bg: const Color(0xFFEAF2EA),
-        color: _green,
-      ),
-      title: 'Lịch trình của tôi',
-      description:
-          'Xem lại các điểm đến đã lên kế hoạch và các chuyến đi đã hoàn thành.',
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: const Color(0xFFEAF2EA),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Text(
-              '3 hành trình sắp tới',
-              style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  color: _green),
-            ),
+          _MenuItem(
+            icon: Icons.receipt_long_outlined,
+            iconBg: AppColors.blueLight,
+            iconColor: AppColors.blue,
+            title: 'Đơn đặt chỗ của tôi',
+            badge: '3 chuyến sắp tới',
+            badgeColor: AppColors.blue,
+            badgeBg: AppColors.blueLight,
           ),
-          const SizedBox(width: 8),
-          const Icon(Icons.arrow_forward_ios,
-              size: 14, color: _textLightGrey),
+          _divider(),
+          _MenuItem(
+            icon: Icons.star_outline,
+            iconBg: AppColors.yellowLight,
+            iconColor: AppColors.yellow,
+            title: 'Đánh giá của tôi',
+            info: '12 bình luận đã viết',
+          ),
+          _divider(),
+          _MenuItem(
+            icon: Icons.credit_card_outlined,
+            iconBg: AppColors.backgroundGreen,
+            iconColor: AppColors.primaryGreen,
+            title: 'Thanh toán',
+            info: 'Visa ****4214',
+          ),
+          _divider(),
+          _MenuItem(
+            icon: Icons.notifications_outlined,
+            iconBg: AppColors.orangeLight,
+            iconColor: AppColors.orange,
+            title: 'Thông báo',
+            badge: '3 tin mới',
+            badgeColor: Colors.white,
+            badgeBg: AppColors.primary,
+          ),
+          _divider(),
+          _MenuItem(
+            icon: Icons.language_outlined,
+            iconBg: AppColors.blueLight,
+            iconColor: AppColors.blue,
+            title: 'Ngôn ngữ',
+            info: 'Tiếng Việt',
+          ),
+          _divider(),
+          _MenuItem(
+            icon: Icons.settings_outlined,
+            iconBg: AppColors.backgroundGrey,
+            iconColor: AppColors.textGrey,
+            title: 'Cài đặt',
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildReviewCard() {
-    return _MenuCard(
-      iconWidget: _IconBox(
-        icon: Icons.star_outline,
-        bg: const Color(0xFFFFF8E1),
-        color: _orange,
-      ),
-      title: 'Đánh giá',
-      description: 'Chia sẻ trải nghiệm của bạn về các điểm đến.',
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: List.generate(
-          5,
-          (_) => const Icon(Icons.star_outline,
-              size: 16, color: Color(0xFFFFC107)),
-        ),
-      ),
-    );
-  }
+  Widget _divider() => const Divider(height: 1, indent: 60, color: AppColors.borderGrey);
 
-  Widget _buildNotificationCard() {
-    return _MenuCard(
-      iconWidget: _IconBox(
-        icon: Icons.notifications_outlined,
-        bg: const Color(0xFFFFF3E0),
-        color: _orange,
-      ),
-      title: 'Cài đặt thông báo',
-      description: 'Ưu đãi, nhắc nhở lịch trình & tin tức du lịch.',
-      trailing: Switch(
-        value: _notificationsEnabled,
-        activeColor: _green,
-        onChanged: (v) => setState(() => _notificationsEnabled = v),
-      ),
-    );
-  }
-
-  Widget _buildLanguageCard() {
-    return _MenuCard(
-      iconWidget: _IconBox(
-        icon: Icons.language_outlined,
-        bg: const Color(0xFFE3F2FD),
-        color: const Color(0xFF1565C0),
-      ),
-      title: 'Ngôn ngữ',
-      description: 'Tiếng Việt',
-      trailing: const Icon(Icons.arrow_forward_ios,
-          size: 14, color: _textLightGrey),
-    );
-  }
-
-  Widget _buildLogoutButton() {
+  Widget _buildLogoutButton(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: SizedBox(
         width: double.infinity,
         height: 48,
         child: OutlinedButton.icon(
           onPressed: () async {
-                final confirmed = await showLogoutDialog(context);
-                if (confirmed == true && mounted) {
-                  await context.read<AuthCubit>().logout();
-                  if (mounted) {
-                    Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
-                  }
-                }
-              },
-          icon: const Icon(Icons.logout, color: _red, size: 18),
+            final confirmed = await showLogoutDialog(context);
+            if (confirmed == true && context.mounted) {
+              await context.read<AuthCubit>().logout();
+              if (context.mounted) {
+                Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login, (_) => false);
+              }
+            }
+          },
+          icon: const Icon(Icons.logout, color: AppColors.error, size: 18),
           label: const Text(
             'Đăng xuất',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: _red,
-            ),
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.error),
           ),
           style: OutlinedButton.styleFrom(
             backgroundColor: const Color(0xFFFFF5F5),
             side: const BorderSide(color: Color(0xFFFFCDD2)),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
       ),
     );
   }
-
-  Widget _buildVersionText() {
-    return const Text(
-      'Vietnam Explore v2.4.0',
-      style: TextStyle(fontSize: 11, color: _textLightGrey),
-      textAlign: TextAlign.center,
-    );
-  }
 }
 
-class _MenuCard extends StatelessWidget {
-  final Widget iconWidget;
-  final String title;
-  final String description;
-  final Widget trailing;
-
-  const _MenuCard({
-    required this.iconWidget,
-    required this.title,
-    required this.description,
-    required this.trailing,
-  });
-
-  static const _textDark = Color(0xFF1A1A1A);
-  static const _textGrey = Color(0xFF757575);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0A2D5A27),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          iconWidget,
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: _textDark,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  description,
-                  style: const TextStyle(fontSize: 12, color: _textGrey),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          trailing,
-        ],
-      ),
-    );
-  }
-}
-
-class _IconBox extends StatelessWidget {
+class _MenuItem extends StatelessWidget {
   final IconData icon;
-  final Color bg;
-  final Color color;
+  final Color iconBg;
+  final Color iconColor;
+  final String title;
+  final String? info;
+  final String? badge;
+  final Color? badgeColor;
+  final Color? badgeBg;
 
-  const _IconBox({
+  const _MenuItem({
     required this.icon,
-    required this.bg,
-    required this.color,
+    required this.iconBg,
+    required this.iconColor,
+    required this.title,
+    this.info,
+    this.badge,
+    this.badgeColor,
+    this.badgeBg,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 42,
-      height: 42,
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(10),
+    return InkWell(
+      onTap: () {},
+      borderRadius: BorderRadius.circular(14),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(10)),
+              child: Icon(icon, color: iconColor, size: 20),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.text),
+              ),
+            ),
+            if (badge != null)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: badgeBg,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(badge!, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: badgeColor)),
+              )
+            else if (info != null)
+              Text(info!, style: const TextStyle(fontSize: 13, color: AppColors.textGrey)),
+            const SizedBox(width: 6),
+            const Icon(Icons.arrow_forward_ios, size: 13, color: AppColors.textLightGrey),
+          ],
+        ),
       ),
-      child: Icon(icon, color: color, size: 22),
     );
   }
 }

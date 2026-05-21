@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_colors.dart';
+
 /// Enum định nghĩa các loại dialog
 enum DialogType {
   success,
@@ -38,19 +40,7 @@ class BaseDialog extends StatelessWidget {
     this.barrierDismissible = true,
   });
 
-  // === Design System Colors ===
-  static const _green = Color(0xFF2D5A27);
-  static const _greenLight = Color(0xFFEAF2EA);
-  static const _orange = Color(0xFFF2994A);
-  static const _orangeLight = Color(0xFFFFF3E0);
-  static const _red = Color(0xFFE53935);
-  static const _redLight = Color(0xFFFFEBEE);
-  static const _blue = Color(0xFF1565C0);
-  static const _blueLight = Color(0xFFE3F2FD);
-  static const _textDark = Color(0xFF1A1A1A);
-  static const _textGrey = Color(0xFF757575);
-
-  /// Hiển thị dialog với animation mượt mà
+/// Hiển thị dialog với animation mượt mà
   static Future<T?> show<T>({
     required BuildContext context,
     required DialogType type,
@@ -110,34 +100,34 @@ class BaseDialog extends StatelessWidget {
     switch (type) {
       case DialogType.success:
         return _DialogConfig(
-          iconColor: _green,
-          iconBgColor: _greenLight,
+          iconColor: AppColors.primaryGreen,
+          iconBgColor: AppColors.backgroundGreen,
           icon: customIcon ?? Icons.check_circle_outline_rounded,
-          primaryBtnColor: _green,
+          primaryBtnColor: AppColors.primaryGreen,
           primaryBtnTextColor: Colors.white,
         );
       case DialogType.warning:
         return _DialogConfig(
-          iconColor: _orange,
-          iconBgColor: _orangeLight,
+          iconColor: AppColors.orange,
+          iconBgColor: AppColors.orangeLight,
           icon: customIcon ?? Icons.warning_amber_rounded,
-          primaryBtnColor: _red,
+          primaryBtnColor: AppColors.error,
           primaryBtnTextColor: Colors.white,
         );
       case DialogType.confirm:
         return _DialogConfig(
-          iconColor: _red,
-          iconBgColor: _redLight,
+          iconColor: AppColors.error,
+          iconBgColor: AppColors.errorLight,
           icon: customIcon ?? Icons.logout_rounded,
-          primaryBtnColor: _red,
+          primaryBtnColor: AppColors.error,
           primaryBtnTextColor: Colors.white,
         );
       case DialogType.info:
         return _DialogConfig(
-          iconColor: _blue,
-          iconBgColor: _blueLight,
+          iconColor: AppColors.blue,
+          iconBgColor: AppColors.blueLight,
           icon: customIcon ?? Icons.info_outline_rounded,
-          primaryBtnColor: _green,
+          primaryBtnColor: AppColors.primaryGreen,
           primaryBtnTextColor: Colors.white,
         );
     }
@@ -160,7 +150,7 @@ class BaseDialog extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF2D5A27).withValues(alpha: 0.12),
+                  color: AppColors.primaryGreen.withValues(alpha: 0.12),
                   blurRadius: 24,
                   offset: const Offset(0, 8),
                   spreadRadius: 0,
@@ -210,7 +200,7 @@ class BaseDialog extends StatelessWidget {
                       fontFamily: 'Be Vietnam Pro',
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
-                      color: _textDark,
+                      color: AppColors.text,
                       height: 1.3,
                     ),
                   ),
@@ -228,7 +218,7 @@ class BaseDialog extends StatelessWidget {
                       fontFamily: 'Inter',
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
-                      color: _textGrey,
+                      color: AppColors.textGrey,
                       height: 1.5,
                     ),
                   ),
@@ -283,7 +273,7 @@ class BaseDialog extends StatelessWidget {
                             onPressed: onSecondaryPressed ??
                                 () => Navigator.of(context).pop(false),
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: _textDark,
+                              foregroundColor: AppColors.text,
                               side: BorderSide(
                                 color: Colors.grey.shade300,
                                 width: 1.2,
@@ -341,7 +331,7 @@ class _CloseButtonState extends State<_CloseButton> {
         height: 32,
         decoration: BoxDecoration(
           color: _isHovered
-              ? const Color(0xFFF5F5F5)
+              ? AppColors.backgroundGrey
               : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
         ),
@@ -349,8 +339,8 @@ class _CloseButtonState extends State<_CloseButton> {
           Icons.close_rounded,
           size: 20,
           color: _isHovered
-              ? const Color(0xFF1A1A1A)
-              : const Color(0xFF9E9E9E),
+              ? AppColors.text
+              : AppColors.textLightGrey,
         ),
       ),
     );
