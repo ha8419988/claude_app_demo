@@ -17,11 +17,17 @@ class UserDto {
 class AuthResponse {
   final String token;
   final UserDto user;
+  final bool isNewUser;
 
-  const AuthResponse({required this.token, required this.user});
+  const AuthResponse({
+    required this.token,
+    required this.user,
+    required this.isNewUser,
+  });
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) => AuthResponse(
         token: json['token'] as String,
         user: UserDto.fromJson(json['user'] as Map<String, dynamic>),
+        isNewUser: json['isNewUser'] as bool? ?? false,
       );
 }

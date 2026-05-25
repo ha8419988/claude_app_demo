@@ -12,3 +12,10 @@ class RegisterRequest {
   const RegisterRequest({required this.name, required this.email, required this.password});
   Map<String, dynamic> toJson() => {'name': name, 'email': email, 'password': password};
 }
+
+class SocialLoginRequest {
+  final String provider;
+  final String token;
+  const SocialLoginRequest({required this.provider, required this.token});
+  Map<String, dynamic> toJson() => {'provider': provider, 'token': token};
+}
