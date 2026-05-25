@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/routes/app_routes.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
+import '../services/social_auth_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/base_dialog.dart';
 
@@ -19,6 +20,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
+  final _socialAuth = SocialAuthService();
   bool _passwordVisible = false;
   bool _confirmVisible = false;
   bool _agreed = false;
@@ -37,6 +39,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       context, AppRoutes.verifyEmail, (_) => false,
       arguments: _emailController.text.trim(),
     );
+  }
+
+  Future<void> _onSocialTap(Future<(String, String)?> Function() signIn) async {
+    final result = await signIn();
+    if (result == null || !mounted) return;
+    final (provider, token) = result;
+    if (!mounted) return;
+    context.read<AuthCubit>().socialLogin(provider, token);
   }
 
   InputDecoration _inputDecoration(
@@ -81,12 +91,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       listener: (context, state) {
         if (!context.mounted) return;
         if (state is AuthAuthenticated) {
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            AppRoutes.verifyEmail,
-            (_) => false,
-            arguments: _emailController.text.trim(),
-          );
+          if (state.isNewUser) {
+            Navigator.pushNamedAndRemoveUntil(
+                context, AppRoutes.setupProfile, (_) => false);
+          } else {
+            Navigator.pushNamedAndRemoveUntil(
+                context, AppRoutes.home, (_) => false);
+          }
         } else if (state is AuthError) {
           BaseDialog.show(
             context: context,
@@ -377,16 +388,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildSocialIconButton(Icons.g_mobiledata, AppColors.googleRed),
+        _buildSocialIconButton(
+          Icons.g_mobiledata,
+          AppColors.googleRed,
+          () => _onSocialTap(_socialAuth.signInWithGoogle),
+        ),
         const SizedBox(width: 16),
-        _buildSocialIconButton(Icons.apps, AppColors.facebookBlue),
+        _buildSocialIconButton(
+          Icons.facebook_rounded,
+          AppColors.facebookBlue,
+          () => _onSocialTap(_socialAuth.signInWithFacebook),
+        ),
+        const SizedBox(width: 16),
+        _buildSocialIconButton(
+          Icons.apple,
+          Colors.black87,
+          () => _onSocialTap(_socialAuth.signInWithApple),
+        ),
       ],
     );
   }
 
-  Widget _buildSocialIconButton(IconData icon, Color color) {
+  Widget _buildSocialIconButton(IconData icon, Color color, VoidCallback onTap) {
     return OutlinedButton(
-      onPressed: () {},
+      onPressed: onTap,
       style: OutlinedButton.styleFrom(
         side: const BorderSide(color: AppColors.borderGrey),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
