@@ -45,5 +45,39 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<!-- Google Sign-In URL Scheme (lấy REVERSED_CLIENT_ID từ GoogleService-Info.plist) -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>REVERSED_CLIENT_ID_FROM_GOOGLE_SERVICE_INFO_PLIST</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fbYOUR_FACEBOOK_APP_ID</string>
+			</array>
+		</dict>
+	</array>
+
+	<!-- Facebook -->
+	<key>FacebookAppID</key>
+	<string>YOUR_FACEBOOK_APP_ID</string>
+	<key>FacebookClientToken</key>
+	<string>YOUR_FACEBOOK_CLIENT_TOKEN</string>
+	<key>FacebookDisplayName</key>
+	<string>Vietnam Travel</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>fbapi</string>
+		<string>fb-messenger-share-api</string>
+	</array>
 </dict>
 </plist>
