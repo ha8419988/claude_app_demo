@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/routes/app_routes.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
+import '../services/social_auth_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/base_dialog.dart';
 
@@ -17,6 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController(text: 'a@gmail.com');
   final _passwordController = TextEditingController(text: '123456');
+  final _socialAuth = SocialAuthService();
   bool _passwordVisible = false;
 
   @override
@@ -38,12 +40,24 @@ class _LoginScreenState extends State<LoginScreen> {
     Navigator.pushReplacementNamed(context, AppRoutes.home);
   }
 
+  Future<void> _onSocialTap(Future<(String, String)?> Function() signIn) async {
+    final result = await signIn();
+    if (result == null || !mounted) return;
+    final (provider, token) = result;
+    if (!mounted) return;
+    context.read<AuthCubit>().socialLogin(provider, token);
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthAuthenticated) {
-          Navigator.pushReplacementNamed(context, AppRoutes.home);
+          if (state.isNewUser) {
+            Navigator.pushReplacementNamed(context, AppRoutes.setupProfile);
+          } else {
+            Navigator.pushReplacementNamed(context, AppRoutes.home);
+          }
         } else if (state is AuthError) {
           BaseDialog.show(
             context: context,
@@ -342,19 +356,19 @@ class _LoginScreenState extends State<LoginScreen> {
         _SocialIconButton(
           icon: Icons.g_mobiledata_rounded,
           iconColor: AppColors.googleRed,
-          onTap: () {},
+          onTap: () => _onSocialTap(_socialAuth.signInWithGoogle),
         ),
         const SizedBox(width: 16),
         _SocialIconButton(
           icon: Icons.facebook_rounded,
           iconColor: AppColors.facebookBlue,
-          onTap: () {},
+          onTap: () => _onSocialTap(_socialAuth.signInWithFacebook),
         ),
         const SizedBox(width: 16),
         _SocialIconButton(
           icon: Icons.apple,
           iconColor: Colors.black87,
-          onTap: () {},
+          onTap: () => _onSocialTap(_socialAuth.signInWithApple),
         ),
       ],
     );
