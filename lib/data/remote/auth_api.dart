@@ -14,4 +14,7 @@ abstract class AuthApi {
 
   @POST('/auth/register')
   Future<AuthResponse> register(@Body() RegisterRequest body);
+
+  @POST('/auth/social')
+  Future<AuthResponse> socialLogin(@Body() SocialLoginRequest body);
 }
