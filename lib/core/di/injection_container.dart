@@ -15,6 +15,7 @@ import '../../domain/usecases/get_featured_locations_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
+import '../../domain/usecases/social_login_usecase.dart';
 import '../network/dio_client.dart';
 
 final sl = GetIt.instance;
@@ -47,6 +48,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => RegisterUseCase(sl()));
   sl.registerLazySingleton(() => AutoLoginUseCase(sl()));
   sl.registerLazySingleton(() => LogoutUseCase(sl()));
+  sl.registerLazySingleton(() => SocialLoginUseCase(sl()));
   sl.registerLazySingleton(() => GetFeaturedLocationsUseCase(sl()));
 
   // ── Cubits ────────────────────────────────────────────
@@ -55,6 +57,7 @@ Future<void> init() async {
         registerUseCase: sl(),
         autoLoginUseCase: sl(),
         logoutUseCase: sl(),
+        socialLoginUseCase: sl(),
       ));
   sl.registerFactory(() => HomeCubit(sl()));
 }

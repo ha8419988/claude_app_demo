@@ -3,6 +3,7 @@ import '../domain/usecases/auto_login_usecase.dart';
 import '../domain/usecases/login_usecase.dart';
 import '../domain/usecases/logout_usecase.dart';
 import '../domain/usecases/register_usecase.dart';
+import '../domain/usecases/social_login_usecase.dart';
 import 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
@@ -10,16 +11,19 @@ class AuthCubit extends Cubit<AuthState> {
   final RegisterUseCase _register;
   final AutoLoginUseCase _autoLogin;
   final LogoutUseCase _logout;
+  final SocialLoginUseCase _socialLogin;
 
   AuthCubit({
     required LoginUseCase loginUseCase,
     required RegisterUseCase registerUseCase,
     required AutoLoginUseCase autoLoginUseCase,
     required LogoutUseCase logoutUseCase,
+    required SocialLoginUseCase socialLoginUseCase,
   })  : _login = loginUseCase,
         _register = registerUseCase,
         _autoLogin = autoLoginUseCase,
         _logout = logoutUseCase,
+        _socialLogin = socialLoginUseCase,
         super(const AuthInitial());
 
   Future<void> login(String email, String password) async {
@@ -37,6 +41,16 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       final (user, token) = await _register(name, email, password);
       emit(AuthAuthenticated(user: user, token: token));
+    } catch (e) {
+      emit(AuthError(e.toString().replaceFirst('Exception: ', '')));
+    }
+  }
+
+  Future<void> socialLogin(String provider, String token) async {
+    emit(const AuthLoading());
+    try {
+      final (user, jwt, isNewUser) = await _socialLogin(provider, token);
+      emit(AuthAuthenticated(user: user, token: jwt, isNewUser: isNewUser));
     } catch (e) {
       emit(AuthError(e.toString().replaceFirst('Exception: ', '')));
     }

@@ -23,12 +23,20 @@ class AuthLoading extends AuthState {
 class AuthAuthenticated extends AuthState {
   final User user;
   final String token;
-  const AuthAuthenticated({required this.user, required this.token});
+  final bool isNewUser;
+  const AuthAuthenticated({
+    required this.user,
+    required this.token,
+    this.isNewUser = false,
+  });
   @override
   bool operator ==(Object other) =>
-      other is AuthAuthenticated && other.user == user && other.token == token;
+      other is AuthAuthenticated &&
+      other.user == user &&
+      other.token == token &&
+      other.isNewUser == isNewUser;
   @override
-  int get hashCode => user.hashCode ^ token.hashCode;
+  int get hashCode => user.hashCode ^ token.hashCode ^ isNewUser.hashCode;
 }
 
 class AuthError extends AuthState {
