@@ -7,6 +7,7 @@ import '../models/user_model.dart';
 abstract class AuthRemoteDataSource {
   Future<(UserModel, String)> login(String email, String password);
   Future<(UserModel, String)> register(String name, String email, String password);
+  Future<(UserModel, String, bool)> socialLogin(String provider, String token);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -30,6 +31,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final resp = await _api.register(
           RegisterRequest(name: name, email: email, password: password));
       return (UserModel.fromJson(resp.user.toJson()), resp.token);
+    } on DioException catch (e) {
+      throw AppException(_extractMessage(e));
+    }
+  }
+
+  @override
+  Future<(UserModel, String, bool)> socialLogin(
+      String provider, String token) async {
+    try {
+      final resp = await _api.socialLogin(
+          SocialLoginRequest(provider: provider, token: token));
+      return (UserModel.fromJson(resp.user.toJson()), resp.token, resp.isNewUser);
     } on DioException catch (e) {
       throw AppException(_extractMessage(e));
     }
