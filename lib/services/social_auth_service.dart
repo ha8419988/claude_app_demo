@@ -3,7 +3,10 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class SocialAuthService {
-  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: ['email', 'profile'],
+    serverClientId: '541600836484-n6t92pj2hbtjp28vaeu619nc8ad7283u.apps.googleusercontent.com',
+  );
 
   /// Trả về (provider, token) hoặc null nếu user huỷ.
   Future<(String, String)?> signInWithGoogle() async {

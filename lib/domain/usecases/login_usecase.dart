@@ -5,6 +5,6 @@ class LoginUseCase {
   final AuthRepository _repository;
   const LoginUseCase(this._repository);
 
-  Future<(User, String)> call(String email, String password) =>
+  Future<(User, String, bool)> call(String email, String password) =>
       _repository.login(email, password);
 }

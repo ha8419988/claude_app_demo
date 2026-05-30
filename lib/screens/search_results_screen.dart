@@ -24,7 +24,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
       reviews: 128,
       price: '2.400.000',
       badge: 'Phổ biến',
-      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80',
+      image: 'https://picsum.photos/seed/hotel1/600/400',
     ),
     (
       name: 'Dalat Palace Heritage Hotel',
@@ -33,7 +33,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
       reviews: 95,
       price: '3.100.000',
       badge: 'Sang trọng',
-      image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600&q=80',
+      image: 'https://picsum.photos/seed/hotel2/600/400',
     ),
     (
       name: 'InterContinental Danang',
@@ -42,7 +42,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
       reviews: 214,
       price: '5.800.000',
       badge: 'Sang trọng',
-      image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&q=80',
+      image: 'https://picsum.photos/seed/hotel3/600/400',
     ),
     (
       name: 'Mường Thanh Grand Hà Nội',
@@ -51,7 +51,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
       reviews: 310,
       price: '1.850.000',
       badge: 'Phổ biến',
-      image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&q=80',
+      image: 'https://picsum.photos/seed/hotel4/600/400',
     ),
   ];
 

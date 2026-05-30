@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'core/di/injection_container.dart' as di;
 import 'core/di/injection_container.dart';
+import 'services/notification_service.dart';
 import 'core/routes/app_routes.dart';
 import 'cubit/auth_cubit.dart';
 import 'cubit/home_cubit.dart';
@@ -26,6 +27,7 @@ import 'widgets/app_bottom_nav_bar.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await di.init();
+  await sl<NotificationService>().init();
   runApp(const MyApp());
 }
 

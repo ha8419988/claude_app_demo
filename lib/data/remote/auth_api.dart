@@ -17,4 +17,7 @@ abstract class AuthApi {
 
   @POST('/auth/social')
   Future<AuthResponse> socialLogin(@Body() SocialLoginRequest body);
+
+  @PATCH('/auth/complete-profile')
+  Future<void> completeProfile(@Header('Authorization') String authorization);
 }

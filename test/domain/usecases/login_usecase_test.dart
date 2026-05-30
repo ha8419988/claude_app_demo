@@ -20,11 +20,11 @@ void main() {
 
   test('calls repository.login and returns (User, token)', () async {
     when(() => repository.login('a@gmail.com', '123456'))
-        .thenAnswer((_) async => (tUser, tToken));
+        .thenAnswer((_) async => (tUser, tToken, false));
 
     final result = await useCase('a@gmail.com', '123456');
 
-    expect(result, equals((tUser, tToken)));
+    expect(result, equals((tUser, tToken, false)));
     verify(() => repository.login('a@gmail.com', '123456')).called(1);
   });
 

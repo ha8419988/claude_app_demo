@@ -24,19 +24,22 @@ class AuthAuthenticated extends AuthState {
   final User user;
   final String token;
   final bool isNewUser;
+  final bool isProfileComplete;
   const AuthAuthenticated({
     required this.user,
     required this.token,
     this.isNewUser = false,
+    this.isProfileComplete = false,
   });
   @override
   bool operator ==(Object other) =>
       other is AuthAuthenticated &&
       other.user == user &&
       other.token == token &&
-      other.isNewUser == isNewUser;
+      other.isNewUser == isNewUser &&
+      other.isProfileComplete == isProfileComplete;
   @override
-  int get hashCode => user.hashCode ^ token.hashCode ^ isNewUser.hashCode;
+  int get hashCode => user.hashCode ^ token.hashCode ^ isNewUser.hashCode ^ isProfileComplete.hashCode;
 }
 
 class AuthError extends AuthState {

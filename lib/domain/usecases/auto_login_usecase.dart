@@ -5,5 +5,5 @@ class AutoLoginUseCase {
   final AuthRepository _repository;
   const AutoLoginUseCase(this._repository);
 
-  Future<(User, String)?> call() => _repository.getSavedSession();
+  Future<(User, String, bool)?> call() => _repository.getSavedSession();
 }

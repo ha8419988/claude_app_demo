@@ -1,22 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../core/di/injection_container.dart';
+import '../cubit/auth_cubit.dart';
+import '../cubit/auth_state.dart';
+import '../cubit/chat_cubit.dart';
+import '../cubit/chat_state.dart';
+import '../services/pusher_service.dart';
+import '../domain/entities/contact.dart';
+import '../domain/entities/conversation.dart';
 import '../theme/app_colors.dart';
 import 'conversation_screen.dart';
 
-class ChatScreen extends StatefulWidget {
+class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (ctx) {
+        final authState = ctx.read<AuthCubit>().state;
+        final myUserId = authState is AuthAuthenticated ? authState.user.id : '';
+        sl<PusherService>().connect(myUserId);
+        return sl<ChatCubit>()..load();
+      },
+      child: const _ChatBody(),
+    );
+  }
 }
 
-class _ChatScreenState extends State<ChatScreen>
-    with SingleTickerProviderStateMixin {
+class _ChatBody extends StatefulWidget {
+  const _ChatBody();
+
+  @override
+  State<_ChatBody> createState() => _ChatBodyState();
+}
+
+class _ChatBodyState extends State<_ChatBody>
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late TabController _tabController;
   int _tabIndex = 0;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
@@ -26,29 +53,76 @@ class _ChatScreenState extends State<ChatScreen>
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      context.read<ChatCubit>().load();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _tabController.dispose();
     super.dispose();
   }
 
+  String _myUserId(BuildContext context) {
+    final state = context.read<AuthCubit>().state;
+    return state is AuthAuthenticated ? state.user.id : '';
+  }
+
+  String _myToken(BuildContext context) {
+    final state = context.read<AuthCubit>().state;
+    return state is AuthAuthenticated ? state.token : '';
+  }
+
+  void _openConversation(BuildContext context, String conversationId,
+      String otherUserName, String otherUserId) {
+    final chatCubit = context.read<ChatCubit>();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ConversationScreen(
+          conversationId: conversationId,
+          otherUserName: otherUserName,
+          otherUserId: otherUserId,
+          myUserId: _myUserId(context),
+          token: _myToken(context),
+        ),
+      ),
+    ).then((_) => chatCubit.load());
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildTabSwitcher(),
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: const [
-                  _MessagesTab(),
-                  _FindCompanionTab(),
-                ],
+    return BlocListener<ChatCubit, ChatState>(
+      listener: (context, state) {
+        if (state is ChatConversationReady) {
+          _openConversation(context, state.conversationId, state.otherUserName, state.otherUserId);
+          context.read<ChatCubit>().resetToLoaded();
+        } else if (state is ChatError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: Column(
+            children: [
+              _buildTabSwitcher(),
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _MessagesTab(onOpen: _openConversation),
+                    const _ContactsTab(),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -76,16 +150,167 @@ class _ChatScreenState extends State<ChatScreen>
   }
 }
 
+// ── Tab: Tin nhắn ───────────────────────────────────────────
+class _MessagesTab extends StatelessWidget {
+  final void Function(BuildContext, String, String, String) onOpen;
+  const _MessagesTab({required this.onOpen});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ChatCubit, ChatState>(
+      builder: (context, state) {
+        if (state is ChatLoading || state is ChatInitial) {
+          return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+        }
+        if (state is ChatError) {
+          return Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(state.message, style: const TextStyle(color: AppColors.textGrey)),
+                const SizedBox(height: 12),
+                TextButton(
+                  onPressed: () => context.read<ChatCubit>().load(),
+                  child: const Text('Thử lại'),
+                ),
+              ],
+            ),
+          );
+        }
+        final conversations = state is ChatLoaded ? state.conversations : <Conversation>[];
+        if (conversations.isEmpty) {
+          return const Center(
+            child: Text('Chưa có cuộc trò chuyện nào',
+                style: TextStyle(color: AppColors.textGrey, fontSize: 14)),
+          );
+        }
+        return Stack(
+          children: [
+            RefreshIndicator(
+              color: AppColors.primary,
+              onRefresh: () => context.read<ChatCubit>().load(),
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                itemCount: conversations.length,
+                separatorBuilder: (_, __) =>
+                    const Divider(height: 1, color: AppColors.borderGrey, indent: 72),
+                itemBuilder: (_, i) {
+                  final conv = conversations[i];
+                  return _ConversationItem(
+                    name: conv.otherUser?.name ?? 'Unknown',
+                    preview: conv.lastMessageText ?? 'Bắt đầu cuộc trò chuyện...',
+                    time: conv.lastMessageTime != null ? _relativeTime(conv.lastMessageTime!) : '',
+                    unreadCount: conv.unreadCount,
+                    onTap: () => onOpen(context, conv.id, conv.otherUser?.name ?? 'Unknown', conv.otherUser?.id ?? ''),
+                  );
+                },
+              ),
+            ),
+            Positioned(
+              right: 20,
+              bottom: 20,
+              child: FloatingActionButton(
+                onPressed: () {},
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                child: const Icon(Icons.edit_square),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  String _relativeTime(DateTime dt) {
+    final diff = DateTime.now().difference(dt);
+    if (diff.inMinutes < 1) return 'Vừa xong';
+    if (diff.inMinutes < 60) return '${diff.inMinutes} phút';
+    if (diff.inHours < 24) return '${diff.inHours} giờ';
+    if (diff.inDays == 1) return 'Hôm qua';
+    return '${diff.inDays} ngày';
+  }
+}
+
+// ── Tab: Tìm bạn ────────────────────────────────────────────
+class _ContactsTab extends StatelessWidget {
+  const _ContactsTab();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ChatCubit, ChatState>(
+      builder: (context, state) {
+        if (state is ChatLoading || state is ChatInitial) {
+          return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+        }
+        final contacts = state is ChatLoaded ? state.contacts : <Contact>[];
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: TextField(
+                style: const TextStyle(fontSize: 14, color: AppColors.text),
+                decoration: InputDecoration(
+                  hintText: 'Tìm người dùng...',
+                  hintStyle: const TextStyle(fontSize: 14, color: AppColors.textGrey),
+                  prefixIcon: const Icon(Icons.search, color: AppColors.textGrey, size: 20),
+                  filled: true,
+                  fillColor: AppColors.backgroundGrey,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Người dùng (${contacts.length})',
+                  style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.text),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: contacts.isEmpty
+                  ? const Center(
+                      child: Text('Không có người dùng nào',
+                          style: TextStyle(color: AppColors.textGrey)))
+                  : RefreshIndicator(
+                      color: AppColors.primary,
+                      onRefresh: () => context.read<ChatCubit>().load(),
+                      child: ListView.separated(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        itemCount: contacts.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 10),
+                        itemBuilder: (_, i) => _ContactCard(
+                          contact: contacts[i],
+                          onTap: () =>
+                              context.read<ChatCubit>().startConversation(contacts[i].id),
+                        ),
+                      ),
+                    ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+// ── Shared widgets ───────────────────────────────────────────
 class _TabChip extends StatelessWidget {
   final String label;
   final bool active;
   final VoidCallback onTap;
 
-  const _TabChip({
-    required this.label,
-    required this.active,
-    required this.onTap,
-  });
+  const _TabChip({required this.label, required this.active, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -96,9 +321,7 @@ class _TabChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: active ? AppColors.primary : Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: active ? AppColors.primary : AppColors.borderGrey,
-          ),
+          border: Border.all(color: active ? AppColors.primary : AppColors.borderGrey),
         ),
         child: Text(
           label,
@@ -113,376 +336,131 @@ class _TabChip extends StatelessWidget {
   }
 }
 
-class _FindCompanionTab extends StatelessWidget {
-  const _FindCompanionTab();
-
-  static const _companions = [
-    {
-      'name': 'Sophie L.',
-      'country': 'FR',
-      'countryColor': 0xFF1565C0,
-      'destination': 'Đà Nẵng',
-      'dates': '15–20/06',
-      'interests': 'Biển · Ẩm thực',
-      'avatar': 'https://picsum.photos/seed/sophie/200/200',
-    },
-    {
-      'name': 'James K.',
-      'country': 'GB',
-      'countryColor': 0xFF1565C0,
-      'destination': 'Hội An',
-      'dates': '18–25/06',
-      'interests': 'Văn hoá · Local Food',
-      'avatar': 'https://picsum.photos/seed/james/200/200',
-    },
-    {
-      'name': 'Amara O.',
-      'country': 'NG',
-      'countryColor': 0xFF2D5A27,
-      'destination': 'Phú Quốc',
-      'dates': '20–28/06',
-      'interests': 'Sang chảnh · Lặn biển',
-      'avatar': 'https://picsum.photos/seed/amara/200/200',
-    },
-    {
-      'name': 'Carlos M.',
-      'country': 'BR',
-      'countryColor': 0xFF2D5A27,
-      'destination': 'Hà Nội',
-      'dates': '22–30/06',
-      'interests': 'Nhiếp ảnh · Bơi lội',
-      'avatar': 'https://picsum.photos/seed/carlos/200/200',
-    },
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: TextField(
-            style: const TextStyle(fontSize: 14, color: AppColors.text),
-            decoration: InputDecoration(
-              hintText: 'Tìm bạn đồng hành...',
-              hintStyle: const TextStyle(fontSize: 14, color: AppColors.textGrey),
-              prefixIcon: const Icon(Icons.search, color: AppColors.textGrey, size: 20),
-              filled: true,
-              fillColor: AppColors.backgroundGrey,
-              contentPadding: const EdgeInsets.symmetric(vertical: 12),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              'Gợi ý quanh bạn',
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: AppColors.text,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Expanded(
-          child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            itemCount: _companions.length + 1,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
-            itemBuilder: (_, i) {
-              if (i == _companions.length) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        'Đang tìm thêm bạn đồng hành phù hợp...',
-                        style: TextStyle(fontSize: 13, color: AppColors.textGrey),
-                      ),
-                    ],
-                  ),
-                );
-              }
-              return _CompanionCard(data: _companions[i]);
-            },
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _CompanionCard extends StatelessWidget {
-  final Map<String, Object> data;
-
-  const _CompanionCard({required this.data});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.borderGrey),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            radius: 28,
-            backgroundImage: NetworkImage(data['avatar'] as String),
-            backgroundColor: AppColors.cardPlaceholder,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      data['name'] as String,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.text,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: Color(data['countryColor'] as int),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        data['country'] as String,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    const Icon(Icons.location_on_outlined, size: 14, color: AppColors.textGrey),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${data['destination']}  ·  ${data['dates']}',
-                      style: const TextStyle(fontSize: 12, color: AppColors.textGrey),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(Icons.chat_bubble_outline, size: 14, color: AppColors.textGrey),
-                    const SizedBox(width: 4),
-                    Text(
-                      data['interests'] as String,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textGrey),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MessagesTab extends StatelessWidget {
-  const _MessagesTab();
-
-  static const _conversations = [
-    {
-      'name': 'TEG Hotel',
-      'preview': 'Phòng của bạn đã sẵn sàng check-in...',
-      'time': '2 phút',
-      'initial': 'T',
-      'avatarColor': 0xFF1565C0,
-      'unread': true,
-    },
-    {
-      'name': 'Nautilus Maldives',
-      'preview': 'Chuyến đi của bạn đã được xác nhận!',
-      'time': '1 giờ',
-      'initial': 'N',
-      'avatarColor': 0xFF00838F,
-      'unread': true,
-    },
-    {
-      'name': 'Erin-Ijesha Lodge',
-      'preview': 'Cảm ơn bạn đã lưu trú, hãy để lại...',
-      'time': 'Hôm qua',
-      'initial': 'E',
-      'avatarColor': 0xFF6A1B9A,
-      'unread': false,
-    },
-    {
-      'name': 'TravelSafe Support',
-      'preview': 'Chúng tôi luôn sẵn sàng hỗ trợ bạn',
-      'time': '3 ngày',
-      'initial': 'S',
-      'avatarColor': 0xFFE65100,
-      'unread': false,
-    },
-    {
-      'name': 'James K.',
-      'preview': 'Bạn đã sẵn sàng cho chuyến đi chưa?',
-      'time': '5 ngày',
-      'initial': 'J',
-      'avatarColor': 0xFF2D5A27,
-      'unread': false,
-    },
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        ListView.separated(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          itemCount: _conversations.length,
-          separatorBuilder: (_, __) => const Divider(
-            height: 1,
-            color: AppColors.borderGrey,
-            indent: 72,
-          ),
-          itemBuilder: (_, i) => _ConversationItem(
-            data: _conversations[i],
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => ConversationScreen(
-                  name: _conversations[i]['name'] as String,
-                  initial: _conversations[i]['initial'] as String,
-                  avatarColor: _conversations[i]['avatarColor'] as int,
-                ),
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          right: 20,
-          bottom: 20,
-          child: FloatingActionButton(
-            onPressed: () {},
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
-            child: const Icon(Icons.edit_square),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _ConversationItem extends StatelessWidget {
-  final Map<String, Object> data;
-  final VoidCallback? onTap;
+  final String name;
+  final String preview;
+  final String time;
+  final int unreadCount;
+  final VoidCallback onTap;
 
-  const _ConversationItem({required this.data, this.onTap});
+  const _ConversationItem({
+    required this.name,
+    required this.preview,
+    required this.time,
+    required this.unreadCount,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final initial = name.isNotEmpty ? name[0].toUpperCase() : '?';
     return GestureDetector(
       onTap: onTap,
       child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 26,
-            backgroundColor: Color(data['avatarColor'] as int),
-            child: Text(
-              data['initial'] as String,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 26,
+              backgroundColor: AppColors.primary,
+              child: Text(initial,
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(name,
+                          style: const TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.text)),
+                      Text(time,
+                          style: const TextStyle(fontSize: 12, color: AppColors.textLightGrey)),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(preview,
+                      style: const TextStyle(fontSize: 13, color: AppColors.textGrey),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis),
+                ],
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      data['name'] as String,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.text,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          data['time'] as String,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textLightGrey,
-                          ),
-                        ),
-                        if (data['unread'] as bool) ...[
-                          const SizedBox(width: 6),
-                          Container(
-                            width: 8,
-                            height: 8,
-                            decoration: const BoxDecoration(
-                              color: AppColors.primary,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ],
+            if (unreadCount > 0)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  data['preview'] as String,
-                  style: const TextStyle(fontSize: 13, color: AppColors.textGrey),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                child: Text(
+                  unreadCount > 99 ? '99+' : '$unreadCount',
+                  style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
                 ),
-              ],
-            ),
-          ),
-        ],
+              ),
+          ],
+        ),
       ),
-    ),
+    );
+  }
+}
+
+class _ContactCard extends StatelessWidget {
+  final Contact contact;
+  final VoidCallback onTap;
+
+  const _ContactCard({required this.contact, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final initial = contact.name.isNotEmpty ? contact.name[0].toUpperCase() : '?';
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.borderGrey),
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 24,
+              backgroundColor: AppColors.primary.withValues(alpha: 0.12),
+              child: Text(initial,
+                  style: const TextStyle(
+                      color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 18)),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(contact.name,
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.text)),
+                  const SizedBox(height: 2),
+                  Text(contact.email,
+                      style: const TextStyle(fontSize: 12, color: AppColors.textGrey)),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text('Nhắn tin',
+                  style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

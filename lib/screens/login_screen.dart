@@ -37,7 +37,11 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _submit() {
-    Navigator.pushReplacementNamed(context, AppRoutes.home);
+    if (!_formKey.currentState!.validate()) return;
+    context.read<AuthCubit>().login(
+          _emailController.text.trim(),
+          _passwordController.text,
+        );
   }
 
   Future<void> _onSocialTap(Future<(String, String)?> Function() signIn) async {
@@ -53,7 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthAuthenticated) {
-          if (state.isNewUser) {
+          if (state.isNewUser || !state.isProfileComplete) {
             Navigator.pushReplacementNamed(context, AppRoutes.setupProfile);
           } else {
             Navigator.pushReplacementNamed(context, AppRoutes.home);

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/routes/app_routes.dart';
+import '../cubit/auth_cubit.dart';
 import '../theme/app_colors.dart';
 
 class SelectGenderScreen extends StatefulWidget {
@@ -109,8 +111,12 @@ class _SelectGenderScreenState extends State<SelectGenderScreen> {
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: () => Navigator.pushNamedAndRemoveUntil(
-                      context, AppRoutes.home, (_) => false),
+                  onPressed: () async {
+                    await context.read<AuthCubit>().completeProfile();
+                    if (!context.mounted) return;
+                    Navigator.pushNamedAndRemoveUntil(
+                        context, AppRoutes.home, (_) => false);
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,

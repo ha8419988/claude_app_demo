@@ -18,7 +18,7 @@ void main() {
   test('returns saved session when it exists', () async {
     const tUser = User(id: '1', name: 'Anh', email: 'a@gmail.com');
     when(() => repository.getSavedSession())
-        .thenAnswer((_) async => (tUser, 'token123'));
+        .thenAnswer((_) async => (tUser, 'token123', false));
 
     final result = await useCase();
 

@@ -15,16 +15,16 @@ class _HomeScreenState extends State<HomeScreen> {
   int _categoryIndex = 0;
 
   static const _cities = [
-    ('Hà Nội', 'https://images.unsplash.com/photo-1509030450996-dd1a26dda07a?w=400&q=80'),
-    ('TP.HCM', 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=400&q=80'),
-    ('Đà Nẵng', 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=400&q=80'),
-    ('Hội An', 'https://images.unsplash.com/photo-1583417457561-7eadbd3a4001?w=400&q=80'),
+    ('Hà Nội', 'https://picsum.photos/seed/hanoi/400/300'),
+    ('TP.HCM', 'https://picsum.photos/seed/hcm/400/300'),
+    ('Đà Nẵng', 'https://picsum.photos/seed/danang/400/300'),
+    ('Hội An', 'https://picsum.photos/seed/hoian/400/300'),
   ];
 
   static const _popular = [
-    ('Sapa', 'Lào Cai', 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400&q=80'),
-    ('Thác Bản Giốc', 'Cao Bằng', 'https://images.unsplash.com/photo-1570366583862-f91883984fde?w=400&q=80'),
-    ('Vịnh Hạ Long', 'Quảng Ninh', 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=400&q=80'),
+    ('Sapa', 'Lào Cai', 'https://picsum.photos/seed/sapa/400/300'),
+    ('Thác Bản Giốc', 'Cao Bằng', 'https://picsum.photos/seed/bangioc/400/300'),
+    ('Vịnh Hạ Long', 'Quảng Ninh', 'https://picsum.photos/seed/halong/400/300'),
   ];
 
   static const _categories = [
@@ -379,7 +379,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               CachedNetworkImage(
                 imageUrl:
-                    'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=600&q=80',
+                    'https://picsum.photos/seed/danang2/600/400',
                 fit: BoxFit.cover,
                 placeholder: (_, __) =>
                     Container(color: AppColors.cardPlaceholder),

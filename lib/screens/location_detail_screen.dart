@@ -50,10 +50,10 @@ class _LocationDetailScreenState extends State<LocationDetailScreen> {
   ];
 
   static const _gallery = [
-    'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=400&q=80',
-    'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400&q=80',
-    'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&q=80',
-    'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=400&q=80',
+    'https://picsum.photos/seed/gallery1/400/300',
+    'https://picsum.photos/seed/gallery2/400/300',
+    'https://picsum.photos/seed/gallery3/400/300',
+    'https://picsum.photos/seed/gallery4/400/300',
   ];
 
   static const _reviews = [

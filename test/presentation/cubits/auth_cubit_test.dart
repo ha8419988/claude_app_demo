@@ -3,9 +3,11 @@ import 'package:claude_app_demo/cubit/auth_cubit.dart';
 import 'package:claude_app_demo/cubit/auth_state.dart';
 import 'package:claude_app_demo/domain/entities/user.dart';
 import 'package:claude_app_demo/domain/usecases/auto_login_usecase.dart';
+import 'package:claude_app_demo/domain/usecases/complete_profile_usecase.dart';
 import 'package:claude_app_demo/domain/usecases/login_usecase.dart';
 import 'package:claude_app_demo/domain/usecases/logout_usecase.dart';
 import 'package:claude_app_demo/domain/usecases/register_usecase.dart';
+import 'package:claude_app_demo/domain/usecases/social_login_usecase.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -13,6 +15,8 @@ class MockLoginUseCase extends Mock implements LoginUseCase {}
 class MockRegisterUseCase extends Mock implements RegisterUseCase {}
 class MockAutoLoginUseCase extends Mock implements AutoLoginUseCase {}
 class MockLogoutUseCase extends Mock implements LogoutUseCase {}
+class MockSocialLoginUseCase extends Mock implements SocialLoginUseCase {}
+class MockCompleteProfileUseCase extends Mock implements CompleteProfileUseCase {}
 
 void main() {
   late AuthCubit cubit;
@@ -34,6 +38,8 @@ void main() {
       registerUseCase: registerUseCase,
       autoLoginUseCase: autoLoginUseCase,
       logoutUseCase: logoutUseCase,
+      socialLoginUseCase: MockSocialLoginUseCase(),
+      completeProfileUseCase: MockCompleteProfileUseCase(),
     );
   });
 
@@ -44,7 +50,7 @@ void main() {
       'emits [AuthLoading, AuthAuthenticated] on success',
       build: () {
         when(() => loginUseCase('a@gmail.com', '123456'))
-            .thenAnswer((_) async => (tUser, tToken));
+            .thenAnswer((_) async => (tUser, tToken, false));
         return cubit;
       },
       act: (c) => c.login('a@gmail.com', '123456'),
@@ -86,7 +92,7 @@ void main() {
       'emits [AuthAuthenticated] when session exists',
       build: () {
         when(() => autoLoginUseCase())
-            .thenAnswer((_) async => (tUser, tToken));
+            .thenAnswer((_) async => (tUser, tToken, false));
         return cubit;
       },
       act: (c) => c.tryAutoLogin(),
